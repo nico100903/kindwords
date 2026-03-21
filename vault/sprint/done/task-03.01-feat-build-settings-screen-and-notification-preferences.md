@@ -101,3 +101,12 @@ As a user, I want a settings screen where I can control whether and when daily m
 4. **`cancelNotification` persists enabled=false automatically** — Same as above; the method handles persistence.
 
 5. **TimeOfDay.format() respects device locale** — For 24-hour enforcement, consider manual formatting (`${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}`) if locale produces AM/PM.
+
+---
+<!-- COMPLETION - appended after verification -->
+
+## Changes
+- `lib/main.dart` - modified
+- `lib/screens/settings_screen.dart` - modified
+- `lib/services/notification_service.dart` - modified
+- `test/settings_screen_test.dart` - new

@@ -79,3 +79,16 @@ As a user, I want the app to launch into a stable shell so that later features a
 - **Circular deps:** `FavoritesService` constructor requires `QuoteService`. Instantiate services in `main()` in order: `QuoteService` → `FavoritesService` → `NotificationService`.
 - **Provider access in screens:** Use `Provider.of<T>(context, listen: false)` for actions, `Consumer<T>` or `context.watch<T>()` for UI rebuilds. Do NOT store provider references in StatefulWidget fields.
 - **No network code:** Ensure no http imports or network calls exist anywhere. This app is strictly offline.
+
+---
+<!-- COMPLETION - appended after verification -->
+
+## Changes
+- `lib/main.dart` - new
+- `lib/providers/favorites_provider.dart` - new
+- `lib/providers/quote_provider.dart` - new
+- `lib/screens/favorites_screen.dart` - new
+- `lib/screens/home_screen.dart` - new
+- `lib/screens/settings_screen.dart` - new
+- `lib/services/notification_service.dart` - new
+- `test/widget_test.dart` - new

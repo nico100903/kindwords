@@ -79,3 +79,10 @@ As a user, I want a large built-in quote library so that the app stays fresh wit
 - **TODO comment mismatch:** `quotes_data.dart` references "Wave 1, Task 01.01" in its TODO comment. This is task 01.03. Update or remove the TODO when completing this task.
 - **Favorites integrity:** Changing or removing existing IDs (`q001`–`q010`) will orphan saved favorites. Never modify or delete existing entries — only append.
 - **Quote source:** No requirement for verified attribution. If sourcing quotes from public collections, ensure text is appropriate for the student target audience.
+
+---
+<!-- COMPLETION - appended after verification -->
+
+## Changes
+- `lib/data/quotes_data.dart` - new
+- `test/quote_data_test.dart` - new

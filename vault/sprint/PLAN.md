@@ -10,9 +10,15 @@ KindWords is an offline Flutter Android app with three release-critical capabili
 - `discovery/prd.md` defines user journeys, product goals, and implementation constraints.
 - `discovery/architecture.md` defines module boundaries, data contracts, and recommended sequencing.
 - `vault/ai/docs/architecture/module-map.md` defines module ownership and current gaps.
-- `vault/sprint/backlog/` now contains the Build-phase epics and task files.
+- `vault/sprint/backlog/` and `vault/sprint/done/` reflect current execution state for Build-phase tasks.
 
-## Backlog Summary
+## Current Execution State
+
+- Done: `01.01`, `01.02`, `01.03`, `03.01`
+- Backlog: `01.04`, `02`, `02.01`, `02.02`, `02.03`, `03`, `03.02`, `03.03`, `03.04`
+- Working tree already contains fresh enrichment for upcoming tasks `01.04` and `03.02`; keep both in backlog until their implementation is completed and verified.
+
+## Task Summary
 
 | ID | Title | Type | Cx | Sprint | Depends | Parallel with |
 |----|-------|------|----|--------|---------|---------------|

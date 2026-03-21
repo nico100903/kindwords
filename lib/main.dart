@@ -29,6 +29,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => FavoritesProvider(favoritesService),
         ),
+        Provider.value(value: notificationService),
       ],
       child: const KindWordsApp(),
     ),

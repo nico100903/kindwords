@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/quote_provider.dart';
 
-/// Home screen displaying a quote card, "Save to Favorites" button, and primary CTA.
+/// Home screen displaying a quote card and primary CTA button.
 ///
-/// Task 01.02: Build the home screen shell with quote card, "Get Motivation" button,
+/// Task 01.02: Build the home screen shell with quote card, visible CTA button,
 /// and bottom navigation for Home/Favorites/Settings. CTA remains visible without scrolling.
+/// Random quote replacement behavior is implemented in task 01.04.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -103,52 +104,24 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          // Save to Favorites button
+          // Primary "Get Motivation" button (behavior implemented in task 01.04)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Consumer<QuoteProvider>(
-              builder: (context, quoteProvider, child) {
-                return OutlinedButton.icon(
-                  onPressed: () {
-                    // Placeholder for favorites functionality
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Favorites feature coming soon'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.favorite_outline),
-                  label: const Text('Save to Favorites'),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Primary "Get Motivation" button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Consumer<QuoteProvider>(
-              builder: (context, quoteProvider, child) {
-                return SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      quoteProvider.refreshQuote();
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('New Quote'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: null, // Quote refresh behavior added in task 01.04
+                icon: const Icon(Icons.refresh),
+                label: const Text('New Quote'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 24),

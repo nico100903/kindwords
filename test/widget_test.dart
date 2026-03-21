@@ -33,10 +33,19 @@ void main() {
     expect(find.text('KindWords'), findsOneWidget);
   });
 
-  testWidgets('Home screen shows Get Motivation button', (WidgetTester tester) async {
+  testWidgets('Home screen has navigation icons', (WidgetTester tester) async {
     await tester.pumpWidget(_createTestApp());
 
-    // Verify Get Motivation button is present
-    expect(find.text('Get Motivation'), findsOneWidget);
+    // Verify favorites navigation icon is present
+    expect(find.byIcon(Icons.favorite_outline), findsOneWidget);
+    // Verify settings navigation icon is present
+    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+  });
+
+  testWidgets('Home screen displays a quote', (WidgetTester tester) async {
+    await tester.pumpWidget(_createTestApp());
+
+    // Verify a quote card is displayed (QuoteProvider ensures non-null quote)
+    expect(find.byType(Card), findsOneWidget);
   });
 }

@@ -156,33 +156,27 @@ void main() {
             reason: 'Card key must be ValueKey<String> based on quote.id');
       });
 
-      testWidgets('tapping New Quote triggers animation (transition runs)',
-          (WidgetTester tester) async {
-        // Arrange
-        await tester.pumpWidget(_createTestHomeApp());
-        await tester.pumpAndSettle();
+       testWidgets('tapping New Quote triggers animation (transition runs)',
+           (WidgetTester tester) async {
+         // Arrange
+         await tester.pumpWidget(_createTestHomeApp());
+         await tester.pumpAndSettle();
 
-        // Act: tap the New Quote button
-        await tester.tap(find.byType(ElevatedButton));
-        
-        // Assert: pump (not pumpAndSettle) to capture mid-animation state
-        // Animation should be in progress
-        await tester.pump(const Duration(milliseconds: 50));
-        
-        // During animation, AnimatedSwitcher manages both old and new children
-        // This is observable by checking that animation is not complete
-        final animatedSwitcher = tester.widget<AnimatedSwitcher>(
-          find.byType(AnimatedSwitcher),
-        );
-        
-        // After tapping, the animation should start - verify by pumping
-        // through animation duration and confirming it settles
-        await tester.pumpAndSettle(const Duration(milliseconds: 500));
-        
-        // If we got here without errors, animation completed successfully
-        expect(find.byType(AnimatedSwitcher), findsOneWidget,
-            reason: 'AnimatedSwitcher must handle the transition');
-      });
+         // Act: tap the New Quote button
+         await tester.tap(find.byType(ElevatedButton));
+         
+         // Assert: pump (not pumpAndSettle) to capture mid-animation state
+         // Animation should be in progress
+         await tester.pump(const Duration(milliseconds: 50));
+         
+         // After tapping, the animation should start - verify by pumping
+         // through animation duration and confirming it settles
+         await tester.pumpAndSettle(const Duration(milliseconds: 500));
+         
+         // If we got here without errors, animation completed successfully
+         expect(find.byType(AnimatedSwitcher), findsOneWidget,
+             reason: 'AnimatedSwitcher must handle the transition');
+       });
     });
 
     // -------------------------------------------------------------------------

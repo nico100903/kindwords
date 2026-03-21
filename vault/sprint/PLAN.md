@@ -14,9 +14,10 @@ KindWords is an offline Flutter Android app with three release-critical capabili
 
 ## Current Execution State
 
-- Done: `01.01`, `01.02`, `01.03`, `03.01`
-- Backlog: `01.04`, `02`, `02.01`, `02.02`, `02.03`, `03`, `03.02`, `03.03`, `03.04`
-- Working tree already contains fresh enrichment for upcoming tasks `01.04` and `03.02`; keep both in backlog until their implementation is completed and verified.
+- Done: `01.01`, `01.02`, `01.03`, `01.04`, `03.01`
+- Backlog: `02`, `02.01`, `02.02`, `02.03`, `03`, `03.02`, `03.03`, `03.04`
+- `01.04` is complete and independently verified by commits `b966d89`, `2a207b4`, and `30e0266`, with `fvm flutter test` and `fvm flutter analyze` passing.
+- `03.02` remains in backlog, but current audit evidence indicates the next pass should start with device-focused schedule, cancel, and reschedule verification before introducing any new implementation.
 
 ## Task Summary
 
@@ -55,8 +56,10 @@ KindWords is an offline Flutter Android app with three release-critical capabili
 ### Wave 3 — Primary quote loop and notification scheduling
 | ID | Title | Type | Cx | Depends | Parallel with |
 |----|-------|------|----|---------|---------------|
-| 01.04 | Connect random quote flow | feat | M | 01.02, 01.03 | 03.02 |
+| 01.04 | Connect random quote flow | feat | M | 01.02, 01.03 | complete |
 | 03.02 | Complete daily notification scheduling | feat | L | 03.01 | 01.04 |
+
+Wave 3 note: `03.02` is now verification-first. Existing scheduling logic is already present in the app, so the next dispatch should prove physical-device behavior for schedule, cancel, and reschedule flows before treating the task as net-new implementation.
 
 ### Wave 4 — Persistence hardening and Android-specific recovery
 | ID | Title | Type | Cx | Depends | Parallel with |
@@ -90,6 +93,7 @@ Reason: daily notification delivery remains the highest-risk lane because it com
 ## Planning Notes For Main Orchestrator
 
 - Start with Wave 1 immediately; both tasks are unblocked and establish the app structure every later lane relies on.
-- Route `03.02` and `03.03` as `difficulty: complex` candidates for heavy implementation support after tech-lead enrichment.
+- Treat `03.02` as a verification-led backlog item first; only open follow-up implementation work if device audit evidence exposes a real scheduling gap.
+- Route `03.03` as a `difficulty: complex` candidate for heavy implementation support after `03.02` verification closes remaining uncertainty.
 - Treat `01.03`, `02.01`, and `03.01` as the first major parallel batch once `01.01` is complete.
 - Use individual task frontmatter as source of truth if it ever conflicts with this summary.

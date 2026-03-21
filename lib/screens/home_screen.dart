@@ -63,38 +63,48 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 32.0,
                     ),
                     child: SingleChildScrollView(
-                      child: Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                quote.text,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontStyle: FontStyle.italic,
-                                  height: 1.4,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              if (quote.author != null) ...[
-                                const SizedBox(height: 16),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        child: Card(
+                          key: ValueKey(quote.id),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                                 Text(
-                                  '— ${quote.author}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
+                                  quote.text,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontStyle: FontStyle.italic,
+                                    height: 1.4,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
+                                if (quote.author != null) ...[
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    '— ${quote.author}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -110,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: null, // Quote refresh behavior added in task 01.04
+                onPressed: () => context.read<QuoteProvider>().refreshQuote(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('New Quote'),
                 style: ElevatedButton.styleFrom(

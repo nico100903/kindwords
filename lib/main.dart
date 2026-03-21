@@ -29,6 +29,8 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => FavoritesProvider(favoritesService),
         ),
+        // Expose NotificationService for SettingsScreen access
+        Provider<NotificationServiceBase>.value(value: notificationService),
       ],
       child: const KindWordsApp(),
     ),

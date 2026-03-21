@@ -5,6 +5,15 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'quote_service.dart';
 
+/// Abstract interface for notification services.
+///
+/// Allows mocking in tests without tight coupling to implementation details.
+abstract class NotificationServiceBase {
+  Future<({bool enabled, int hour, int minute})> loadSettings();
+  Future<void> scheduleDailyNotification(int hour, int minute);
+  Future<void> cancelNotification();
+}
+
 /// Handles daily scheduled notifications using [flutter_local_notifications].
 ///
 /// Wave 3 (Task 03.01) will implement full scheduling logic.
@@ -14,7 +23,7 @@ import 'quote_service.dart';
 /// - Requires SCHEDULE_EXACT_ALARM (API 31–32) or USE_EXACT_ALARM (API 33+)
 /// - Notification channel: "kindwords_daily" (IMPORTANCE_DEFAULT)
 /// - Uses zonedSchedule with DateTimeComponents.time for daily repeat
-class NotificationService {
+class NotificationService implements NotificationServiceBase {
   static const String _channelId = 'kindwords_daily';
   static const String _channelName = 'Daily Motivation';
   static const String _channelDesc = 'Daily motivational quote notification';
@@ -50,6 +59,7 @@ class NotificationService {
   /// Persists the chosen time to [SharedPreferences].
   ///
   /// TODO (Wave 3, Task 03.01): Implement full scheduling logic.
+  @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
     await cancelNotification();
 
@@ -86,6 +96,7 @@ class NotificationService {
   }
 
   /// Cancels the scheduled daily notification and marks it disabled.
+  @override
   Future<void> cancelNotification() async {
     await _plugin.cancel(_notificationId);
     final prefs = await SharedPreferences.getInstance();
@@ -95,6 +106,7 @@ class NotificationService {
   /// Loads saved notification settings from [SharedPreferences].
   ///
   /// Returns a record with {enabled, hour, minute} or defaults (disabled, 8:00).
+  @override
   Future<({bool enabled, int hour, int minute})> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     return (

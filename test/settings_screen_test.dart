@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:kindwords/screens/settings_screen.dart';
+import 'package:kindwords/services/notification_service.dart';
 
 /// Mock NotificationService for widget testing.
 ///
 /// Tracks method calls to verify SettingsScreen interactions.
-class MockNotificationService {
+class MockNotificationService implements NotificationServiceBase {
   bool loadSettingsCalled = false;
   bool scheduleDailyNotificationCalled = false;
   bool cancelNotificationCalled = false;
@@ -22,12 +23,14 @@ class MockNotificationService {
   }
   
   /// Simulates loading settings from SharedPreferences.
+  @override
   Future<({bool enabled, int hour, int minute})> loadSettings() async {
     loadSettingsCalled = true;
     return _settings;
   }
   
   /// Simulates scheduling a daily notification.
+  @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
     scheduleDailyNotificationCalled = true;
     lastScheduleHour = hour;
@@ -36,6 +39,7 @@ class MockNotificationService {
   }
   
   /// Simulates canceling the notification.
+  @override
   Future<void> cancelNotification() async {
     cancelNotificationCalled = true;
     _settings = (enabled: false, hour: _settings.hour, minute: _settings.minute);
@@ -55,7 +59,7 @@ class MockNotificationService {
 Widget createTestSettingsApp(MockNotificationService mockService) {
   return MaterialApp(
     home: Scaffold(
-      body: Provider<MockNotificationService>.value(
+      body: Provider<NotificationServiceBase>.value(
         value: mockService,
         child: const SettingsScreen(),
       ),

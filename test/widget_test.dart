@@ -33,13 +33,14 @@ void main() {
     expect(find.text('KindWords'), findsOneWidget);
   });
 
-  testWidgets('Home screen has navigation icons', (WidgetTester tester) async {
+  testWidgets('Home screen has bottom navigation bar', (WidgetTester tester) async {
     await tester.pumpWidget(_createTestApp());
 
-    // Verify favorites navigation icon is present
-    expect(find.byIcon(Icons.favorite_outline), findsOneWidget);
-    // Verify settings navigation icon is present
-    expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+    // Verify bottom navigation bar is present with Home/Favorites/Settings
+    expect(find.byType(BottomNavigationBar), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Favorites'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
   });
 
   testWidgets('Home screen displays a quote', (WidgetTester tester) async {

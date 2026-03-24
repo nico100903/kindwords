@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:kindwords/services/notification_service.dart';
+import '../services/notification_service.dart';
 
 /// Settings screen for notification configuration.
 ///
-/// Task 03.01: Full notification time picker and toggle implementation.
-/// Allows users to enable/disable daily notifications and select reminder time.
+/// Task 03.01: Daily notification enable/disable toggle and time picker.
+/// Settings persist via NotificationService (SharedPreferences internally).
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -15,48 +15,42 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = false;
-  int _hour = 8;
-  int _minute = 0;
+  int _notificationHour = 8;
+  int _notificationMinute = 0;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     _loadSettings();
   }
 
   Future<void> _loadSettings() async {
     final service = context.read<NotificationServiceBase>();
     final settings = await service.loadSettings();
-    
+
     if (mounted) {
       setState(() {
         _notificationsEnabled = settings.enabled;
-        _hour = settings.hour;
-        _minute = settings.minute;
+        _notificationHour = settings.hour;
+        _notificationMinute = settings.minute;
         _isLoading = false;
       });
     }
   }
 
-  String get _formattedTime {
-    return '${_hour.toString().padLeft(2, '0')}:${_minute.toString().padLeft(2, '0')}';
-  }
+  Future<void> _onToggleChanged(bool value) async {
+    final notificationService = context.read<NotificationServiceBase>();
 
-  Future<void> _toggleNotifications(bool value) async {
-    final service = context.read<NotificationServiceBase>();
-    
     if (value) {
-      await service.scheduleDailyNotification(_hour, _minute);
+      await notificationService.scheduleDailyNotification(
+        _notificationHour,
+        _notificationMinute,
+      );
     } else {
-      await service.cancelNotification();
+      await notificationService.cancelNotification();
     }
-    
+
     if (mounted) {
       setState(() {
         _notificationsEnabled = value;
@@ -64,33 +58,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _selectTime() async {
-    // Get service before async gap to avoid use_build_context_synchronously
-    final service = context.read<NotificationServiceBase>();
-    
-    final TimeOfDay? selectedTime = await showTimePicker(
+  Future<void> _pickTime() async {
+    final notificationService = context.read<NotificationServiceBase>();
+
+    final pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: _hour, minute: _minute),
+      initialTime: TimeOfDay(
+        hour: _notificationHour,
+        minute: _notificationMinute,
+      ),
       builder: (context, child) {
-        // Ensure 24-hour format
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        return Localizations.override(
+          context: context,
+          locale: const Locale('en', 'GB'),
           child: child!,
         );
       },
     );
 
-    if (selectedTime != null) {
-      await service.scheduleDailyNotification(selectedTime.hour, selectedTime.minute);
-      
+    if (pickedTime != null) {
       if (mounted) {
         setState(() {
-          _hour = selectedTime.hour;
-          _minute = selectedTime.minute;
-          _notificationsEnabled = true;
+          _notificationHour = pickedTime.hour;
+          _notificationMinute = pickedTime.minute;
         });
       }
+
+      if (_notificationsEnabled) {
+        await notificationService.scheduleDailyNotification(
+          _notificationHour,
+          _notificationMinute,
+        );
+      }
     }
+  }
+
+  String _formatTime(int hour, int minute) {
+    final hourStr = hour.toString().padLeft(2, '0');
+    final minuteStr = minute.toString().padLeft(2, '0');
+    return '$hourStr:$minuteStr';
   }
 
   @override
@@ -103,35 +109,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
-                SwitchListTile(
-                  title: const Text('Daily Notifications'),
-                  subtitle: Text(_notificationsEnabled
-                      ? 'Enabled'
-                      : 'Disabled'),
-                  value: _notificationsEnabled,
-                  onChanged: _toggleNotifications,
-                ),
-                ListTile(
-                  title: const Text('Reminder Time'),
-                  trailing: InkWell(
-                    onTap: _selectTime,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _formattedTime,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.access_time),
-                        ],
-                      ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    'Daily Reminders',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                  onTap: _selectTime,
+                ),
+                SwitchListTile(
+                  title: const Text('Enable Daily Notifications'),
+                  subtitle: Text(
+                    _notificationsEnabled
+                        ? 'Daily motivation at ${_formatTime(_notificationHour, _notificationMinute)}'
+                        : 'Notifications are disabled',
+                  ),
+                  value: _notificationsEnabled,
+                  onChanged: _onToggleChanged,
+                ),
+                if (_notificationsEnabled)
+                  ListTile(
+                    leading: const Icon(Icons.access_time),
+                    title: const Text('Reminder Time'),
+                    subtitle: Text(
+                      _formatTime(_notificationHour, _notificationMinute),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _pickTime,
+                  ),
+                const Divider(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Daily reminders will show a random motivational quote at your chosen time.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                  ),
                 ),
               ],
             ),

@@ -73,3 +73,10 @@ As a user, I want a simple home screen with a readable quote area and a clear bu
 - **Parallel task dependency:** 01.01 (provider wiring) runs in parallel. If `QuoteProvider` does not exist when this task runs, use a static placeholder quote from `kAllQuotes[0]`. Do not block on 01.01 completion.
 - **Text overflow:** Test with the longest expected quote (220 chars). Use `FittedBox` or dynamic font sizing only if wrapping alone fails on narrow screens — prefer simple wrapping first.
 - **Navigation stubs:** Favorites and Settings screens are placeholder containers only. They should be empty `Scaffold` widgets with a title — no business logic.
+
+---
+<!-- COMPLETION - appended after verification -->
+
+## Changes
+- `lib/screens/home_screen.dart` - modified
+- `test/widget_test.dart` - modified

@@ -1,0 +1,35 @@
+name: kindwords
+description: KindWords — Daily Motivation Generator. Random motivational quotes, daily notifications, and favorites. Fully offline Android app.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.1.2
+
+  # Local notifications (daily scheduling)
+  flutter_local_notifications: ^17.0.0
+
+  # Required by flutter_local_notifications for timezone-aware scheduling
+  timezone: ^0.9.4
+
+  # Favorites and settings persistence
+  shared_preferences: ^2.3.2
+
+  # Default Flutter icon package
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

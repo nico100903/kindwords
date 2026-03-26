@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/quote.dart';
-import 'quote_service.dart';
+import '../repositories/quote_repository.dart';
 
 /// Persists favorite quote IDs using [SharedPreferences].
 ///
@@ -10,9 +10,9 @@ import 'quote_service.dart';
 class FavoritesService {
   static const String _favoritesKey = 'favorite_quote_ids';
 
-  final QuoteService _quoteService;
+  final QuoteRepositoryBase _repository;
 
-  FavoritesService(this._quoteService);
+  FavoritesService(this._repository);
 
   /// Loads all saved favorite [Quote] objects from storage.
   ///
@@ -25,7 +25,7 @@ class FavoritesService {
     final ids = List<String>.from(jsonDecode(raw) as List);
     final results = <Quote>[];
     for (final id in ids) {
-      final quote = await _quoteService.getById(id);
+      final quote = await _repository.getById(id);
       if (quote != null) {
         results.add(quote);
       }

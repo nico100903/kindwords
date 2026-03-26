@@ -6,7 +6,10 @@ import '../repositories/quote_repository.dart';
 ///
 /// Guarantees no immediate repeat: [getRandomQuote] will never return
 /// the same quote as [currentId] unless the list has only one item.
-class QuoteService {
+///
+/// Implements [QuoteRepositoryBase] so it can be passed wherever a repository
+/// is expected (e.g. in widget tests that wire [FavoritesService] directly).
+class QuoteService implements QuoteRepositoryBase {
   final QuoteRepositoryBase _repository;
   final Random _random = Random();
 
@@ -34,7 +37,12 @@ class QuoteService {
     return candidates[_random.nextInt(candidates.length)];
   }
 
+  /// Returns all quotes from the repository.
+  @override
+  Future<List<Quote>> getAllQuotes() => _repository.getAllQuotes();
+
   /// Returns the [Quote] with the given [id], or null if not found.
+  @override
   Future<Quote?> getById(String id) => _repository.getById(id);
 
   /// Total number of available quotes.

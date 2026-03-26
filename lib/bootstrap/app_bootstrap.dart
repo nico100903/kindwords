@@ -34,7 +34,7 @@ Future<Widget> bootstrapApp() async {
 
   // Instantiate services in dependency order
   final quoteService = QuoteService(quoteRepo);
-  final favoritesService = FavoritesService(quoteService);
+  final favoritesService = FavoritesService(quoteRepo);
   final notificationService = NotificationService(quoteService);
 
   // Initialize notification service before app launch

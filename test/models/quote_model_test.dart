@@ -58,7 +58,11 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('Quote.fromMap()', () {
     test('reconstructs a Quote with author from a DB row map', () {
-      final row = <String, Object?>{'id': 'q1', 'text': 'Hello', 'author': 'Alice'};
+      final row = <String, Object?>{
+        'id': 'q1',
+        'text': 'Hello',
+        'author': 'Alice'
+      };
 
       final quote = Quote.fromMap(row);
 
@@ -78,7 +82,11 @@ void main() {
     });
 
     test('produces an immutable Quote instance', () {
-      final row = <String, Object?>{'id': 'q4', 'text': 'Immutable', 'author': 'Dev'};
+      final row = <String, Object?>{
+        'id': 'q4',
+        'text': 'Immutable',
+        'author': 'Dev'
+      };
 
       final quote = Quote.fromMap(row);
 
@@ -110,7 +118,8 @@ void main() {
     });
 
     test('round-trip preserves all field values for quote with author', () {
-      const original = Quote(id: 'q5', text: 'Full fidelity check', author: 'Carol');
+      const original =
+          Quote(id: 'q5', text: 'Full fidelity check', author: 'Carol');
 
       final roundTripped = Quote.fromMap(original.toMap());
 
@@ -119,7 +128,8 @@ void main() {
       expect(roundTripped.author, equals(original.author));
     });
 
-    test('round-trip preserves all field values for quote with null author', () {
+    test('round-trip preserves all field values for quote with null author',
+        () {
       const original = Quote(id: 'q6', text: 'Anonymous quote', author: null);
 
       final roundTripped = Quote.fromMap(original.toMap());
@@ -138,8 +148,7 @@ void main() {
       const a = Quote(id: 'q1', text: 'Original text', author: 'Alice');
       const b = Quote(id: 'q1', text: 'Different text', author: 'Bob');
 
-      expect(a, equals(b),
-          reason: 'equality is id-only per existing contract');
+      expect(a, equals(b), reason: 'equality is id-only per existing contract');
     });
 
     test('two Quotes with different ids are not equal', () {

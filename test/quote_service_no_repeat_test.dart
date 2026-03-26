@@ -1,13 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kindwords/services/quote_service.dart';
+import 'package:kindwords/repositories/quote_repository.dart';
+import 'package:kindwords/models/quote.dart';
 import 'package:kindwords/data/quotes_data.dart';
+
+// ---------------------------------------------------------------------------
+// In-memory test repository — wraps kAllQuotes without requiring sqflite.
+// ---------------------------------------------------------------------------
+class _InMemoryQuoteRepository implements QuoteRepositoryBase {
+  @override
+  Future<List<Quote>> getAllQuotes() async => kAllQuotes;
+
+  @override
+  Future<Quote?> getById(String id) async {
+    try {
+      return kAllQuotes.firstWhere((q) => q.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+}
 
 void main() {
   group('Task 01.04: QuoteService no-repeat behavior', () {
     late QuoteService quoteService;
 
     setUp(() {
-      quoteService = QuoteService();
+      quoteService = QuoteService(_InMemoryQuoteRepository());
     });
 
     // -------------------------------------------------------------------------
@@ -18,7 +37,7 @@ void main() {
     group('AC: 10-tap no consecutive repeats', () {
       test(
           'getRandomQuote with currentId never returns same quote (catalog > 1)',
-          () {
+          () async {
         // Arrange: catalog has multiple quotes
         expect(
           kAllQuotes.length,
@@ -29,7 +48,7 @@ void main() {
         // Act & Assert: 10 consecutive calls, each passing previous id
         String? currentId;
         for (int i = 0; i < 10; i++) {
-          final quote = quoteService.getRandomQuote(currentId: currentId);
+          final quote = await quoteService.getRandomQuote(currentId: currentId);
           if (currentId != null) {
             expect(
               quote.id,
@@ -43,14 +62,14 @@ void main() {
       });
 
       test('getRandomQuote distributes across catalog (not stuck on one quote)',
-          () {
+          () async {
         // Arrange
         final seenIds = <String>{};
 
         // Act: 20 calls to get reasonable distribution sample
         String? currentId;
         for (int i = 0; i < 20; i++) {
-          final quote = quoteService.getRandomQuote(currentId: currentId);
+          final quote = await quoteService.getRandomQuote(currentId: currentId);
           seenIds.add(quote.id);
           currentId = quote.id;
         }
@@ -66,9 +85,9 @@ void main() {
       });
 
       test('getRandomQuote without currentId returns any quote from catalog',
-          () {
+          () async {
         // Act: get quote without currentId (initial load scenario)
-        final quote = quoteService.getRandomQuote();
+        final quote = await quoteService.getRandomQuote();
 
         // Assert: quote exists in catalog
         final catalogIds = kAllQuotes.map((q) => q.id).toSet();

@@ -55,7 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Consumer<QuoteProvider>(
               builder: (context, quoteProvider, child) {
-                final quote = quoteProvider.currentQuote;
+                if (quoteProvider.isLoading ||
+                    quoteProvider.currentQuote == null) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final quote = quoteProvider.currentQuote!;
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(

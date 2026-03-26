@@ -16,17 +16,21 @@ class FavoritesService {
 
   /// Loads all saved favorite [Quote] objects from storage.
   ///
-  /// IDs that no longer exist in [kAllQuotes] are silently skipped.
+  /// IDs that no longer exist in the repository are silently skipped.
   Future<List<Quote>> loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_favoritesKey);
     if (raw == null) return [];
 
     final ids = List<String>.from(jsonDecode(raw) as List);
-    return ids
-        .map((id) => _quoteService.getById(id))
-        .whereType<Quote>()
-        .toList();
+    final results = <Quote>[];
+    for (final id in ids) {
+      final quote = await _quoteService.getById(id);
+      if (quote != null) {
+        results.add(quote);
+      }
+    }
+    return results;
   }
 
   /// Saves [quote] to favorites. Does nothing if already saved.

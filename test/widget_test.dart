@@ -7,10 +7,30 @@ import 'package:kindwords/providers/quote_provider.dart';
 import 'package:kindwords/providers/favorites_provider.dart';
 import 'package:kindwords/services/quote_service.dart';
 import 'package:kindwords/services/favorites_service.dart';
+import 'package:kindwords/repositories/quote_repository.dart';
+import 'package:kindwords/models/quote.dart';
+import 'package:kindwords/data/quotes_data.dart';
+
+// ---------------------------------------------------------------------------
+// In-memory test repository — wraps kAllQuotes so tests don't need sqflite.
+// ---------------------------------------------------------------------------
+class _InMemoryQuoteRepository implements QuoteRepositoryBase {
+  @override
+  Future<List<Quote>> getAllQuotes() async => kAllQuotes;
+
+  @override
+  Future<Quote?> getById(String id) async {
+    try {
+      return kAllQuotes.firstWhere((q) => q.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+}
 
 /// Creates a testable widget tree with providers.
 Widget _createTestApp() {
-  final quoteService = QuoteService();
+  final quoteService = QuoteService(_InMemoryQuoteRepository());
   final favoritesService = FavoritesService(quoteService);
 
   return MultiProvider(
@@ -47,6 +67,7 @@ void main() {
 
   testWidgets('Home screen displays a quote', (WidgetTester tester) async {
     await tester.pumpWidget(_createTestApp());
+    await tester.pumpAndSettle(); // wait for async _initialize() to complete
 
     // Verify a quote card is displayed (QuoteProvider ensures non-null quote)
     expect(find.byType(Card), findsOneWidget);
@@ -59,7 +80,7 @@ void main() {
   testWidgets(
     'FavoritesProvider exposes required state interface',
     (WidgetTester tester) async {
-      final quoteService = QuoteService();
+      final quoteService = QuoteService(_InMemoryQuoteRepository());
       final favoritesService = FavoritesService(quoteService);
       final favoritesProvider = FavoritesProvider(favoritesService);
 
@@ -78,7 +99,7 @@ void main() {
   testWidgets(
     'FavoritesScreen renders with Scaffold structure',
     (WidgetTester tester) async {
-      final quoteService = QuoteService();
+      final quoteService = QuoteService(_InMemoryQuoteRepository());
       final favoritesService = FavoritesService(quoteService);
       final favoritesProvider = FavoritesProvider(favoritesService);
 
@@ -101,7 +122,7 @@ void main() {
   testWidgets(
     'FavoritesScreen shows loading state when isLoading is true',
     (WidgetTester tester) async {
-      final quoteService = QuoteService();
+      final quoteService = QuoteService(_InMemoryQuoteRepository());
       final favoritesService = FavoritesService(quoteService);
       final favoritesProvider = FavoritesProvider(favoritesService);
 
@@ -130,7 +151,7 @@ void main() {
   testWidgets(
     'FavoritesScreen Consumer updates when FavoritesProvider changes',
     (WidgetTester tester) async {
-      final quoteService = QuoteService();
+      final quoteService = QuoteService(_InMemoryQuoteRepository());
       final favoritesService = FavoritesService(quoteService);
       final favoritesProvider = FavoritesProvider(favoritesService);
 

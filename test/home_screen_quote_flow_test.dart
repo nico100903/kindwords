@@ -6,13 +6,46 @@ import 'package:kindwords/providers/quote_provider.dart';
 import 'package:kindwords/providers/favorites_provider.dart';
 import 'package:kindwords/services/quote_service.dart';
 import 'package:kindwords/services/favorites_service.dart';
+import 'package:kindwords/repositories/quote_repository.dart';
+import 'package:kindwords/models/quote.dart';
+
+// ---------------------------------------------------------------------------
+// In-memory test repository — uses kAllQuotes loaded via the repository
+// interface so QuoteService gets a real catalog without sqflite.
+// ---------------------------------------------------------------------------
+class _InMemoryQuoteRepository implements QuoteRepositoryBase {
+  final List<Quote> _quotes;
+  _InMemoryQuoteRepository(this._quotes);
+
+  @override
+  Future<List<Quote>> getAllQuotes() async => List.unmodifiable(_quotes);
+
+  @override
+  Future<Quote?> getById(String id) async {
+    try {
+      return _quotes.firstWhere((q) => q.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+// A representative set of quotes (more than 1 to allow no-repeat tests).
+final _testQuotes = List<Quote>.generate(
+  10,
+  (i) => Quote(
+      id: 'q${(i + 1).toString().padLeft(3, '0')}',
+      text: 'Quote ${i + 1}',
+      author: null),
+);
 
 /// Global quote provider reference for testing.
 QuoteProvider? _testQuoteProvider;
 
 /// Creates a testable HomeScreen widget tree with providers.
 Widget _createTestHomeApp() {
-  final quoteService = QuoteService();
+  final repo = _InMemoryQuoteRepository(_testQuotes);
+  final quoteService = QuoteService(repo);
   final favoritesService = FavoritesService(quoteService);
   _testQuoteProvider = QuoteProvider(quoteService);
 
@@ -68,7 +101,7 @@ void main() {
 
         // Capture initial quote text
         final quoteProvider = _testQuoteProvider!;
-        final initialQuoteId = quoteProvider.currentQuote.id;
+        final initialQuoteId = quoteProvider.currentQuote!.id;
 
         // Act: tap the New Quote button
         final button = find.byType(ElevatedButton);
@@ -76,7 +109,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert: quote has changed
-        final newQuoteId = quoteProvider.currentQuote.id;
+        final newQuoteId = quoteProvider.currentQuote!.id;
         expect(
           newQuoteId,
           isNot(equals(initialQuoteId)),
@@ -97,7 +130,7 @@ void main() {
         // Act & Assert: tap 5 times, verify no consecutive repeats
         String? previousId;
         for (int i = 0; i < 5; i++) {
-          final currentId = quoteProvider.currentQuote.id;
+          final currentId = quoteProvider.currentQuote!.id;
           if (previousId != null) {
             expect(
               currentId,
@@ -225,14 +258,14 @@ void main() {
         await tester.pumpAndSettle();
 
         final quoteProvider = _testQuoteProvider!;
-        final initialQuote = quoteProvider.currentQuote;
+        final initialQuote = quoteProvider.currentQuote!;
 
         // Act: tap New Quote - should work without any network calls
         await tester.tap(find.byType(ElevatedButton));
         await tester.pumpAndSettle();
 
         // Assert: quote changed using only local data
-        final newQuote = quoteProvider.currentQuote;
+        final newQuote = quoteProvider.currentQuote!;
         expect(
           newQuote.id,
           isNot(equals(initialQuote.id)),
@@ -257,11 +290,11 @@ void main() {
         // Act: rapid taps without waiting for settle
         final ids = <String>[];
         for (int i = 0; i < 5; i++) {
-          ids.add(quoteProvider.currentQuote.id);
+          ids.add(quoteProvider.currentQuote!.id);
           await tester.tap(button);
           await tester.pump(const Duration(milliseconds: 100)); // Minimal wait
         }
-        ids.add(quoteProvider.currentQuote.id);
+        ids.add(quoteProvider.currentQuote!.id);
 
         // Assert: no consecutive duplicates (even with rapid tapping)
         for (int i = 1; i < ids.length; i++) {

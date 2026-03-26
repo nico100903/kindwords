@@ -29,12 +29,11 @@ Future<Widget> bootstrapApp() async {
   // 2. Seed quotes table from embedded list (idempotent — no-op after first run)
   await db.seedIfEmpty(kAllQuotes);
 
-  // 3. Construct repository (Wave R5 will wire this into QuoteService)
-  // ignore: unused_local_variable
+  // 3. Construct repository + wire into QuoteService (Wave R5)
   final quoteRepo = LocalQuoteRepository(db);
 
   // Instantiate services in dependency order
-  final quoteService = QuoteService();
+  final quoteService = QuoteService(quoteRepo);
   final favoritesService = FavoritesService(quoteService);
   final notificationService = NotificationService(quoteService);
 

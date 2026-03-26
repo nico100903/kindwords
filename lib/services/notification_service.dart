@@ -62,7 +62,7 @@ class NotificationService implements NotificationServiceBase {
   Future<void> scheduleDailyNotification(int hour, int minute) async {
     await cancelNotification();
 
-    final quote = _quoteService.getRandomQuote();
+    final quote = await _quoteService.getRandomQuote();
     final scheduledTime = _nextInstanceOf(hour, minute);
 
     const androidDetails = AndroidNotificationDetails(

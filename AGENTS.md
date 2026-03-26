@@ -5,6 +5,9 @@
 - Git: `gitflow.config[orchestrator]`
 - Tasks: `task-waves.config[orchestrator,pm]`
 - Worker: `worker-scope.standard[workers]`
+- SDLC: `project-context[kindwords]`
+
+> **Flutter project context:** All Flutter/Dart coding and tech-lead agents load `.opencode/skills/flutter-standards/SKILL.md` at session start. This skill is the binding authority for patterns, conventions, and quality gates on this project.
 
 ---
 
@@ -24,10 +27,12 @@
 |-------|-----------|---------|
 | UI framework | Flutter (Dart) | — |
 | State management | Provider | `provider: ^6.1.2` |
+| Local database | sqflite | `sqflite: ^2.3.x` |
+| DB path | path | `path: ^1.9.x` |
 | Local notifications | flutter_local_notifications | `flutter_local_notifications: ^17.0.0` |
 | Timezone support | timezone | `timezone: ^0.9.4` |
 | Persistence | shared_preferences | `shared_preferences: ^2.3.2` |
-| Data | Embedded Dart list | — |
+| Data | SQLite (seeded from `kAllQuotes`) | — |
 
 ---
 
@@ -39,7 +44,10 @@ lib/
   models/
     quote.dart               # Quote data model
   data/
-    quotes_data.dart         # Full 100+ quotes list
+    quotes_data.dart         # Full 100+ quotes list (seed source only after DB pivot)
+    quote_database.dart      # SQLite DAL: open, seedIfEmpty, getAllQuotes
+  repositories/
+    quote_repository.dart    # QuoteRepositoryBase (abstract) + LocalQuoteRepository
   services/
     quote_service.dart       # Random quote logic
     favorites_service.dart   # shared_preferences persistence
@@ -92,10 +100,9 @@ dart format lib/
 
 | Agent | Role | Scope |
 |-------|------|-------|
-| `pipeline/sdlc-coder[zai-coding-plan](glm-5)` | Primary coder | Feature implementation per wave |
-| `pipeline/sdlc-coder[anthropic](claude-sonnet-4-6)` | Heavy coder | NotificationService (complex Android integration) |
-| `sdlc-sdlc-qa[anthropic](claude-sonnet-4-6)` | QA | BDD tests, acceptance criteria verification |
-| `pipeline/sdlc-tech-lead[anthropic](claude-sonnet-4-6)` | Tech lead | Architecture review, Wave 3 notification complexity |
+| `.opencode/agents/sdlc-flutter-coder[anthropic](claude-sonnet-4-6)` | Flutter coder | All feature implementation — loads flutter-standards skill |
+| `.opencode/agents/sdlc-flutter-tech-lead[anthropic](claude-sonnet-4-6)` | Flutter tech lead | Task enrichment, architecture review — loads flutter-standards skill |
+| `sdlc-qa[anthropic](claude-sonnet-4-6)` | QA | BDD tests, acceptance criteria verification |
 
 ---
 

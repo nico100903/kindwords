@@ -13,26 +13,57 @@ import '../models/quote.dart';
 /// This class is the only place in the codebase that imports `sqflite`
 /// directly. All higher layers (repository, service, providers) go through
 /// [LocalQuoteRepository] which depends on this class.
+///
+/// ## Schema versioning
+///
+/// v1 — columns: `id`, `text`, `author`
+/// v2 — added: `tags`, `source`, `created_at`, `updated_at`
 class QuoteDatabase {
   Database? _db;
 
   /// Opens (or creates) the SQLite database file on the device.
   ///
-  /// Creates the `quotes` schema on first run via [onCreate].
+  /// Creates the full v2 `quotes` schema on fresh installs via [onCreate].
+  /// Migrates existing v1 databases to v2 via [onUpgrade].
   Future<void> open() async {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, 'kindwords.db');
     _db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
+        // Full v2 schema for fresh installs
         await db.execute('''
           CREATE TABLE quotes (
             id TEXT PRIMARY KEY,
             text TEXT NOT NULL,
-            author TEXT
+            author TEXT,
+            tags TEXT NOT NULL DEFAULT '[]',
+            source TEXT NOT NULL DEFAULT 'seeded',
+            created_at TEXT NOT NULL DEFAULT '',
+            updated_at TEXT
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Non-destructive migration: add the four new v2 columns to existing
+          // tables. Existing rows survive; defaults fill in new values.
+          // The empty-string default for created_at is intentional — fromMap()
+          // treats '' the same as null and substitutes the migration fallback.
+          await db.execute(
+            "ALTER TABLE quotes ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'",
+          );
+          await db.execute(
+            "ALTER TABLE quotes ADD COLUMN source TEXT NOT NULL DEFAULT 'seeded'",
+          );
+          await db.execute(
+            "ALTER TABLE quotes ADD COLUMN created_at TEXT NOT NULL DEFAULT ''",
+          );
+          await db.execute(
+            'ALTER TABLE quotes ADD COLUMN updated_at TEXT',
+          );
+        }
       },
     );
   }

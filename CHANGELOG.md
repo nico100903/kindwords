@@ -60,7 +60,8 @@ First public release. All three core user journeys ship fully offline.
 
 ## [Unreleased]
 
-Changes staged for the next release will appear here.
+### Added
+- Quote CRUD foundation: local SQLite schema migrated from v1 to v2, adding tags, source, and timestamp fields to every stored quote. Existing quotes are preserved and enriched with safe defaults — no data loss or reinstall required.
 
 ---
 

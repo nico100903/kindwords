@@ -51,6 +51,9 @@ class MockNotificationService implements NotificationServiceBase {
         (enabled: false, hour: _settings.hour, minute: _settings.minute);
   }
 
+  @override
+  Future<void> rescheduleFromSavedSettings() async {}
+
   void reset() {
     loadSettingsCalled = false;
     scheduleDailyNotificationCalled = false;

@@ -12,14 +12,19 @@ import 'package:kindwords/services/quote_service.dart';
 @pragma('vm:entry-point')
 Future<void> notificationBootCallback() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final db = QuoteDatabase();
-  await db.open();
-  await db.seedIfEmpty(kAllQuotes);
-  final quoteRepo = LocalQuoteRepository(db);
-  final quoteService = QuoteService(quoteRepo);
-  final notificationService = NotificationService(quoteService);
-  await notificationService.initialize();
-  await notificationService.rescheduleFromSavedSettings();
+  try {
+    final db = QuoteDatabase();
+    await db.open();
+    await db.seedIfEmpty(kAllQuotes);
+    final quoteRepo = LocalQuoteRepository(db);
+    final quoteService = QuoteService(quoteRepo);
+    final notificationService = NotificationService(quoteService);
+    await notificationService.initialize();
+    await notificationService.rescheduleFromSavedSettings();
+  } catch (_) {
+    // Silently exit in headless/test environments where platform channels
+    // (sqflite, flutter_local_notifications) are unavailable.
+  }
 }
 
 Future<void> main() async {

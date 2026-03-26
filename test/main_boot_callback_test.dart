@@ -68,12 +68,6 @@ void main() {
         completes,
       );
     },
-    // Skip reason is intentional: this becomes non-skipped once the symbol
-    // exists and we want to confirm it runs.  The COMPILE ERROR below fires
-    // before skip is even evaluated, making the red gate clear.
-    //
-    // Remove `skip` once 03.03 is implemented and the test passes.
-    skip: 'notificationBootCallback not yet added to main.dart — '
-        'COMPILE ERROR expected until Task 03.03 is implemented',
+    // 03.03 implemented — skip removed.
   );
 }

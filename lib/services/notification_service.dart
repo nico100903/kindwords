@@ -11,6 +11,9 @@ abstract class NotificationServiceBase {
   Future<({bool enabled, int hour, int minute})> loadSettings();
   Future<void> scheduleDailyNotification(int hour, int minute);
   Future<void> cancelNotification();
+
+  /// Re-schedules notification from saved settings. Called by boot receiver.
+  Future<void> rescheduleFromSavedSettings();
 }
 
 /// Handles daily scheduled notifications using [flutter_local_notifications].
@@ -131,6 +134,7 @@ class NotificationService implements NotificationServiceBase {
   /// Re-schedules the daily notification from saved settings.
   ///
   /// Called by the BootReceiver after device reboot.
+  @override
   Future<void> rescheduleFromSavedSettings() async {
     final settings = await loadSettings();
     if (settings.enabled) {

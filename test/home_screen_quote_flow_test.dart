@@ -8,6 +8,7 @@ import 'package:kindwords/services/quote_service.dart';
 import 'package:kindwords/services/favorites_service.dart';
 import 'package:kindwords/repositories/quote_repository.dart';
 import 'package:kindwords/models/quote.dart';
+import 'package:kindwords/widgets/quote_card.dart';
 
 // ---------------------------------------------------------------------------
 // In-memory test repository — uses kAllQuotes loaded via the repository
@@ -34,9 +35,10 @@ class _InMemoryQuoteRepository implements QuoteRepositoryBase {
 final _testQuotes = List<Quote>.generate(
   10,
   (i) => Quote(
-      id: 'q${(i + 1).toString().padLeft(3, '0')}',
-      text: 'Quote ${i + 1}',
-      author: null,),
+    id: 'q${(i + 1).toString().padLeft(3, '0')}',
+    text: 'Quote ${i + 1}',
+    author: null,
+  ),
 );
 
 /// Global quote provider reference for testing.
@@ -193,31 +195,32 @@ void main() {
         await tester.pumpWidget(_createTestHomeApp());
         await tester.pumpAndSettle();
 
-        // Find the Card within AnimatedSwitcher
-        final cardFinder = find.descendant(
+        // Find the QuoteCard (direct child of AnimatedSwitcher) — key lives here
+        // after the R6 QuoteCard extraction. The Card is now inside QuoteCard.
+        final quoteCardFinder = find.descendant(
           of: find.byType(AnimatedSwitcher),
-          matching: find.byType(Card),
+          matching: find.byType(QuoteCard),
         );
 
         expect(
-          cardFinder,
+          quoteCardFinder,
           findsOneWidget,
           reason:
-              'Card must be inside AnimatedSwitcher for key-based transitions',
+              'QuoteCard must be inside AnimatedSwitcher for key-based transitions',
         );
 
-        // The Card widget should have a key for AnimatedSwitcher to detect changes
-        final card = tester.widget<Card>(cardFinder);
+        // The QuoteCard widget carries the ValueKey for AnimatedSwitcher diffing
+        final quoteCard = tester.widget<QuoteCard>(quoteCardFinder);
         expect(
-          card.key,
+          quoteCard.key,
           isNotNull,
           reason:
-              'Card must have a ValueKey for AnimatedSwitcher to detect quote changes',
+              'QuoteCard must have a ValueKey for AnimatedSwitcher to detect quote changes',
         );
         expect(
-          card.key,
+          quoteCard.key,
           isA<ValueKey<String>>(),
-          reason: 'Card key must be ValueKey<String> based on quote.id',
+          reason: 'QuoteCard key must be ValueKey<String> based on quote.id',
         );
       });
 

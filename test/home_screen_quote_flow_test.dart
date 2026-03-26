@@ -36,7 +36,7 @@ final _testQuotes = List<Quote>.generate(
   (i) => Quote(
       id: 'q${(i + 1).toString().padLeft(3, '0')}',
       text: 'Quote ${i + 1}',
-      author: null),
+      author: null,),
 );
 
 /// Global quote provider reference for testing.

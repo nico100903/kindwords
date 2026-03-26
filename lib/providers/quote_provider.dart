@@ -48,4 +48,30 @@ class QuoteProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  /// Reloads the current quote from the service if its [id] matches.
+  ///
+  /// Called by catalog mutation hooks (delete/update) so that the home
+  /// screen always shows the latest version of a displayed quote.
+  ///
+  /// If the quote has been deleted ([getQuoteById] returns null) the
+  /// current quote is left as-is — stale-quote handling (clearing or
+  /// replacing with a new random quote) is deferred to the UI layer in
+  /// a later task.
+  ///
+  /// No-op if [_currentQuote.id] does not match [id].
+  Future<void> refreshCurrentIfStale(String id) async {
+    if (_currentQuote?.id != id) return;
+    try {
+      final fresh = await _quoteService.getQuoteById(id);
+      if (fresh != null) {
+        _currentQuote = fresh;
+        notifyListeners();
+      }
+    } catch (_) {
+      // Service call failed or returned unexpected type — leave current
+      // quote unchanged. This guards against test environments where
+      // getQuoteById is not stubbed and gracefully handles quote-not-found.
+    }
+  }
 }

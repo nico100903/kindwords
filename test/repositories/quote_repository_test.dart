@@ -233,7 +233,9 @@ void main() {
       await repo.insertQuote(_userCreatedQuoteV2);
 
       // Assert
-      final captured = verify(() => mockDb.insertQuote(captureAny())).captured.single as Quote;
+      final captured = verify(() => mockDb.insertQuote(captureAny()))
+          .captured
+          .single as Quote;
       expect(captured.id, equals('q-v2-user-001'));
       expect(captured.source, equals(QuoteSource.userCreated));
       expect(captured.tags, equals(['personal']));
@@ -273,7 +275,9 @@ void main() {
       await repo.updateQuote(updated);
 
       // Assert
-      final captured = verify(() => mockDb.updateQuote(captureAny())).captured.single as Quote;
+      final captured = verify(() => mockDb.updateQuote(captureAny()))
+          .captured
+          .single as Quote;
       expect(captured.text, equals('Updated text'));
       expect(captured.author, equals('New Author'));
       expect(captured.tags, equals(['focus']));
@@ -311,7 +315,8 @@ void main() {
   // Group 7: getBySource() — delegation and filtering
   // ───────────────────────────────────────────────────────────────────────────
   group('LocalQuoteRepository.getBySource()', () {
-    test('delegates to QuoteDatabase.getBySource() and returns the result', () async {
+    test('delegates to QuoteDatabase.getBySource() and returns the result',
+        () async {
       // Arrange
       when(() => mockDb.getBySource(QuoteSource.seeded))
           .thenAnswer((_) async => [_seededQuoteV2]);
@@ -335,7 +340,9 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+    test(
+        'getBySource(QuoteSource.userCreated) returns only user-created quotes',
+        () async {
       // Arrange
       when(() => mockDb.getBySource(QuoteSource.userCreated))
           .thenAnswer((_) async => [_userCreatedQuoteV2]);
@@ -352,7 +359,8 @@ void main() {
   // Group 8: getByTag() — delegation and filtering
   // ───────────────────────────────────────────────────────────────────────────
   group('LocalQuoteRepository.getByTag()', () {
-    test('delegates to QuoteDatabase.getByTag() and returns the result', () async {
+    test('delegates to QuoteDatabase.getByTag() and returns the result',
+        () async {
       // Arrange
       when(() => mockDb.getByTag('motivational'))
           .thenAnswer((_) async => [_seededQuoteV2]);
@@ -368,8 +376,7 @@ void main() {
 
     test('returns empty list when no quotes have that tag', () async {
       // Edge case: no matching tags
-      when(() => mockDb.getByTag('nonexistent'))
-          .thenAnswer((_) async => []);
+      when(() => mockDb.getByTag('nonexistent')).thenAnswer((_) async => []);
 
       final result = await repo.getByTag('nonexistent');
 

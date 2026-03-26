@@ -303,7 +303,8 @@ void main() {
       clearInteractions(mockService);
 
       // Stub: reload returns updated list
-      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA, _quoteB]);
+      when(() => mockService.loadFavorites())
+          .thenAnswer((_) async => [_quoteA, _quoteB]);
 
       // Act
       await provider.reload();
@@ -318,7 +319,8 @@ void main() {
       expect(provider.favorites, isEmpty);
 
       // Stub: reload returns updated list
-      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA, _quoteB]);
+      when(() => mockService.loadFavorites())
+          .thenAnswer((_) async => [_quoteA, _quoteB]);
 
       // Act
       await provider.reload();
@@ -336,7 +338,8 @@ void main() {
       expect(provider.favorites.length, equals(1));
 
       // Stub: reload returns only _quoteB (simulating external change)
-      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteB]);
+      when(() => mockService.loadFavorites())
+          .thenAnswer((_) async => [_quoteB]);
 
       // Act
       await provider.reload();
@@ -354,7 +357,8 @@ void main() {
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
 
-      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA]);
+      when(() => mockService.loadFavorites())
+          .thenAnswer((_) async => [_quoteA]);
 
       // Act
       await provider.reload();
@@ -384,7 +388,8 @@ void main() {
       // Arrange
       await _settle();
 
-      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA]);
+      when(() => mockService.loadFavorites())
+          .thenAnswer((_) async => [_quoteA]);
 
       // Act
       await provider.reload();

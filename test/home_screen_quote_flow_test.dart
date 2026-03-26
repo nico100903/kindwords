@@ -29,6 +29,19 @@ class _InMemoryQuoteRepository implements QuoteRepositoryBase {
       return null;
     }
   }
+
+  // Sprint 2 CRUD stubs — not exercised by these tests
+  @override
+  Future<void> insertQuote(Quote quote) => throw UnimplementedError();
+  @override
+  Future<void> updateQuote(Quote quote) => throw UnimplementedError();
+  @override
+  Future<void> deleteQuote(String id) => throw UnimplementedError();
+  @override
+  Future<List<Quote>> getBySource(QuoteSource source) =>
+      throw UnimplementedError();
+  @override
+  Future<List<Quote>> getByTag(String tag) => throw UnimplementedError();
 }
 
 // A representative set of quotes (more than 1 to allow no-repeat tests).

@@ -65,4 +65,20 @@ class FavoritesProvider extends ChangeNotifier {
   bool isFavorite(Quote quote) {
     return _favorites.any((q) => q.id == quote.id);
   }
+
+  /// Re-fetches the favorites list from the service and notifies listeners.
+  ///
+  /// Call this after a quote mutation (edit/delete) so that any stale
+  /// [Quote] objects held in [_favorites] are replaced with fresh data.
+  /// Cross-provider wiring is deferred to the UI layer — callers invoke
+  /// this explicitly rather than having [QuoteCatalogProvider] auto-call it.
+  Future<void> reload() async {
+    try {
+      _favorites = await _favoritesService.loadFavorites();
+    } catch (e) {
+      debugPrint('FavoritesProvider.reload: failed to reload favorites: $e');
+      _favorites = [];
+    }
+    notifyListeners();
+  }
 }

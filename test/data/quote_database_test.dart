@@ -784,7 +784,8 @@ void main() {
       mockDb = MockQuoteDatabase();
     });
 
-    test('insertQuote() exists and accepts Quote, returns Future<void>', () async {
+    test('insertQuote() exists and accepts Quote, returns Future<void>',
+        () async {
       // Arrange: stub insertQuote — if signature does not match, mocktail
       // will produce a type mismatch at stub registration.
       when(() => mockDb.insertQuote(any())).thenAnswer((_) async {});
@@ -796,7 +797,8 @@ void main() {
       verify(() => mockDb.insertQuote(_sampleQuoteV2)).called(1);
     });
 
-    test('updateQuote() exists and accepts Quote, returns Future<void>', () async {
+    test('updateQuote() exists and accepts Quote, returns Future<void>',
+        () async {
       // Arrange
       when(() => mockDb.updateQuote(any())).thenAnswer((_) async {});
 
@@ -806,7 +808,8 @@ void main() {
       verify(() => mockDb.updateQuote(_sampleQuoteV2)).called(1);
     });
 
-    test('deleteQuote() exists and accepts String id, returns Future<void>', () async {
+    test('deleteQuote() exists and accepts String id, returns Future<void>',
+        () async {
       // Arrange
       when(() => mockDb.deleteQuote(any())).thenAnswer((_) async {});
 
@@ -816,7 +819,9 @@ void main() {
       verify(() => mockDb.deleteQuote('q-v2-001')).called(1);
     });
 
-    test('getBySource() exists and accepts QuoteSource, returns Future<List<Quote>>', () async {
+    test(
+        'getBySource() exists and accepts QuoteSource, returns Future<List<Quote>>',
+        () async {
       // Arrange: stub returns a typed List<Quote>
       when(() => mockDb.getBySource(any()))
           .thenAnswer((_) async => [_sampleQuoteV2]);
@@ -829,7 +834,8 @@ void main() {
       expect(result, hasLength(1));
     });
 
-    test('getBySource(QuoteSource.seeded) returns only seeded quotes', () async {
+    test('getBySource(QuoteSource.seeded) returns only seeded quotes',
+        () async {
       // Arrange
       when(() => mockDb.getBySource(QuoteSource.seeded))
           .thenAnswer((_) async => [_sampleQuoteV2]);
@@ -844,7 +850,9 @@ void main() {
       expect(result.first.source, equals(QuoteSource.seeded));
     });
 
-    test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+    test(
+        'getBySource(QuoteSource.userCreated) returns only user-created quotes',
+        () async {
       // Arrange
       when(() => mockDb.getBySource(QuoteSource.seeded))
           .thenAnswer((_) async => [_sampleQuoteV2]);
@@ -859,7 +867,9 @@ void main() {
       expect(result.first.source, equals(QuoteSource.userCreated));
     });
 
-    test('getByTag() exists and accepts String tag, returns Future<List<Quote>>', () async {
+    test(
+        'getByTag() exists and accepts String tag, returns Future<List<Quote>>',
+        () async {
       // Arrange: stub returns a typed List<Quote>
       when(() => mockDb.getByTag(any()))
           .thenAnswer((_) async => [_sampleQuoteV2]);
@@ -878,8 +888,7 @@ void main() {
           .thenAnswer((_) async => [_sampleQuoteV2]);
       when(() => mockDb.getByTag('personal'))
           .thenAnswer((_) async => [_userCreatedQuoteV2]);
-      when(() => mockDb.getByTag('nonexistent'))
-          .thenAnswer((_) async => []);
+      when(() => mockDb.getByTag('nonexistent')).thenAnswer((_) async => []);
 
       // Act + Assert
       final motivational = await mockDb.getByTag('motivational');
@@ -900,7 +909,8 @@ void main() {
     'QuoteDatabase CRUD integration contracts',
     skip: 'requires sqflite platform channel — run on device/emulator',
     () {
-      test('insertQuote() inserts a quote that can be retrieved by getById()', () async {
+      test('insertQuote() inserts a quote that can be retrieved by getById()',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();
@@ -961,7 +971,8 @@ void main() {
         expect(retrieved!.text, equals('Updated text'));
         expect(retrieved.author, equals('Updated Author'));
         expect(retrieved.tags, equals(['wisdom', 'focus']));
-        expect(retrieved.updatedAt, equals(DateTime.parse('2026-03-27T15:00:00.000Z')));
+        expect(retrieved.updatedAt,
+            equals(DateTime.parse('2026-03-27T15:00:00.000Z')));
       });
 
       test('deleteQuote() removes quote from subsequent reads', () async {
@@ -992,7 +1003,8 @@ void main() {
         expect(retrieved, isNull);
       });
 
-      test('getBySource(QuoteSource.seeded) returns only seeded quotes', () async {
+      test('getBySource(QuoteSource.seeded) returns only seeded quotes',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();
@@ -1025,7 +1037,9 @@ void main() {
         expect(result.every((q) => q.source == QuoteSource.seeded), isTrue);
       });
 
-      test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+      test(
+          'getBySource(QuoteSource.userCreated) returns only user-created quotes',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();
@@ -1055,7 +1069,8 @@ void main() {
         final result = await db.getBySource(QuoteSource.userCreated);
 
         // Assert
-        expect(result.every((q) => q.source == QuoteSource.userCreated), isTrue);
+        expect(
+            result.every((q) => q.source == QuoteSource.userCreated), isTrue);
       });
 
       test('getByTag() returns quotes containing that tag', () async {
@@ -1101,7 +1116,8 @@ void main() {
         expect(result.every((q) => q.tags.contains('motivational')), isTrue);
       });
 
-      test('getByTag() returns empty list when no quotes have that tag', () async {
+      test('getByTag() returns empty list when no quotes have that tag',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();

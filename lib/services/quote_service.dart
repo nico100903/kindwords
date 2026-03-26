@@ -45,6 +45,34 @@ class QuoteService implements QuoteRepositoryBase {
   @override
   Future<Quote?> getById(String id) => _repository.getById(id);
 
+  /// Returns a fresh copy of the [Quote] identified by [id] from the
+  /// repository, or null if the quote has been deleted.
+  ///
+  /// Used by [QuoteProvider.refreshCurrentIfStale] to reload an in-memory
+  /// quote after a catalog mutation without triggering a full random refresh.
+  Future<Quote?> getQuoteById(String id) => _repository.getById(id);
+
+  // ── QuoteRepositoryBase CRUD delegation ────────────────────────────────────
+  // QuoteService implements QuoteRepositoryBase so it can be used wherever a
+  // repository is expected. The CRUD mutations simply delegate to the underlying
+  // repository — no additional logic is applied at the service layer.
+
+  @override
+  Future<void> insertQuote(Quote quote) => _repository.insertQuote(quote);
+
+  @override
+  Future<void> updateQuote(Quote quote) => _repository.updateQuote(quote);
+
+  @override
+  Future<void> deleteQuote(String id) => _repository.deleteQuote(id);
+
+  @override
+  Future<List<Quote>> getBySource(QuoteSource source) =>
+      _repository.getBySource(source);
+
+  @override
+  Future<List<Quote>> getByTag(String tag) => _repository.getByTag(tag);
+
   /// Total number of available quotes.
   Future<int> get totalCount async {
     final all = await _repository.getAllQuotes();

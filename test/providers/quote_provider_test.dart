@@ -188,7 +188,8 @@ void main() {
       await expectLater(provider.refreshCurrentIfStale('qa'), completes);
     });
 
-    test('fetches fresh quote from service if currentQuote.id matches id', () async {
+    test('fetches fresh quote from service if currentQuote.id matches id',
+        () async {
       // Arrange
       final provider = QuoteProvider(mockService);
       await Future<void>.microtask(() {});
@@ -206,7 +207,8 @@ void main() {
         createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
         updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
       );
-      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+      when(() => mockService.getQuoteById('qa'))
+          .thenAnswer((_) async => freshQuote);
 
       // Act
       await provider.refreshCurrentIfStale('qa');
@@ -244,7 +246,8 @@ void main() {
         createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
         updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
       );
-      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+      when(() => mockService.getQuoteById('qa'))
+          .thenAnswer((_) async => freshQuote);
 
       // Act
       await provider.refreshCurrentIfStale('qa');
@@ -271,17 +274,20 @@ void main() {
         createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
         updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
       );
-      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+      when(() => mockService.getQuoteById('qa'))
+          .thenAnswer((_) async => freshQuote);
 
       // Act
       await provider.refreshCurrentIfStale('qa');
 
       // Assert
       expect(notifyCount, greaterThanOrEqualTo(1),
-          reason: 'refreshCurrentIfStale must call notifyListeners() after update');
+          reason:
+              'refreshCurrentIfStale must call notifyListeners() after update');
     });
 
-    test('handles case where quote was deleted (service returns null)', () async {
+    test('handles case where quote was deleted (service returns null)',
+        () async {
       // Arrange
       final provider = QuoteProvider(mockService);
       await Future<void>.microtask(() {});

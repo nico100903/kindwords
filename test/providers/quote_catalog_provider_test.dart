@@ -152,7 +152,8 @@ void main() {
       expect(provider.quotes.length, equals(3));
     });
 
-    test('load() sets quotes to empty list when repository returns empty', () async {
+    test('load() sets quotes to empty list when repository returns empty',
+        () async {
       // Arrange
       when(() => mockRepo.getAllQuotes()).thenAnswer((_) async => []);
 
@@ -165,7 +166,8 @@ void main() {
 
     test('load() calls notifyListeners() after completion', () async {
       // Arrange
-      when(() => mockRepo.getAllQuotes()).thenAnswer((_) async => [_seededQuote1]);
+      when(() => mockRepo.getAllQuotes())
+          .thenAnswer((_) async => [_seededQuote1]);
 
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -237,10 +239,12 @@ void main() {
 
       // Assert: only seeded quotes visible
       expect(provider.quotes.length, equals(2));
-      expect(provider.quotes.every((q) => q.source == QuoteSource.seeded), isTrue);
+      expect(
+          provider.quotes.every((q) => q.source == QuoteSource.seeded), isTrue);
     });
 
-    test('source filter userCreated returns only user-created quotes', () async {
+    test('source filter userCreated returns only user-created quotes',
+        () async {
       // Arrange
       final quotes = [_seededQuote1, _userCreatedQuote1, _userCreatedQuote2];
       provider = _makeProvider(mockRepo, initialQuotes: quotes);
@@ -251,7 +255,8 @@ void main() {
 
       // Assert: only user-created quotes visible
       expect(provider.quotes.length, equals(2));
-      expect(provider.quotes.every((q) => q.source == QuoteSource.userCreated), isTrue);
+      expect(provider.quotes.every((q) => q.source == QuoteSource.userCreated),
+          isTrue);
     });
 
     test('source filter null (all) returns all quotes', () async {
@@ -469,7 +474,8 @@ void main() {
       await provider.createQuote(newUserQuote);
 
       // Assert: user-created quote NOT visible under seeded filter
-      expect(provider.quotes.every((q) => q.source == QuoteSource.seeded), isTrue);
+      expect(
+          provider.quotes.every((q) => q.source == QuoteSource.seeded), isTrue);
     });
   });
 
@@ -478,7 +484,8 @@ void main() {
   // -------------------------------------------------------------------------
 
   group('QuoteCatalogProvider.updateQuote()', () {
-    test('update mutation changes quote in-place and re-applies active filters', () async {
+    test('update mutation changes quote in-place and re-applies active filters',
+        () async {
       // Arrange
       provider = _makeProvider(mockRepo, initialQuotes: [_seededQuote1]);
       await provider.load();
@@ -497,7 +504,8 @@ void main() {
       await provider.updateQuote(updated);
 
       // Assert: updated quote appears in list
-      final found = provider.quotes.firstWhere((q) => q.id == 'q-catalog-seeded-001');
+      final found =
+          provider.quotes.firstWhere((q) => q.id == 'q-catalog-seeded-001');
       expect(found.text, equals('Updated text'));
       expect(found.author, equals('New Author'));
       expect(found.tags, equals(['focus']));
@@ -584,7 +592,8 @@ void main() {
   group('QuoteCatalogProvider.deleteQuote()', () {
     test('delete mutation removes quote and updates filtered output', () async {
       // Arrange
-      provider = _makeProvider(mockRepo, initialQuotes: [_seededQuote1, _seededQuote2]);
+      provider = _makeProvider(mockRepo,
+          initialQuotes: [_seededQuote1, _seededQuote2]);
       await provider.load();
       expect(provider.quotes.length, equals(2));
 
@@ -593,7 +602,8 @@ void main() {
 
       // Assert: quote removed from list
       expect(provider.quotes.length, equals(1));
-      expect(provider.quotes.any((q) => q.id == 'q-catalog-seeded-001'), isFalse);
+      expect(
+          provider.quotes.any((q) => q.id == 'q-catalog-seeded-001'), isFalse);
     });
 
     test('delete mutation calls repository.deleteQuote()', () async {
@@ -624,7 +634,8 @@ void main() {
           reason: 'deleteQuote must call notifyListeners()');
     });
 
-    test('after delete, deleted quote does not appear in quotes getter', () async {
+    test('after delete, deleted quote does not appear in quotes getter',
+        () async {
       // Arrange
       provider = _makeProvider(mockRepo, initialQuotes: [_seededQuote1]);
       await provider.load();
@@ -633,7 +644,8 @@ void main() {
       await provider.deleteQuote('q-catalog-seeded-001');
 
       // Assert: provider never exposes stale filtered list
-      expect(provider.quotes.any((q) => q.id == 'q-catalog-seeded-001'), isFalse);
+      expect(
+          provider.quotes.any((q) => q.id == 'q-catalog-seeded-001'), isFalse);
     });
   });
 
@@ -666,7 +678,10 @@ void main() {
         updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
       );
       await provider.updateQuote(updated);
-      expect(provider.quotes.any((q) => q.id == 'q-catalog-seeded-002' && q.text == 'Updated'), isTrue);
+      expect(
+          provider.quotes.any(
+              (q) => q.id == 'q-catalog-seeded-002' && q.text == 'Updated'),
+          isTrue);
 
       // Create one
       final newQuote = Quote(
@@ -696,7 +711,8 @@ void main() {
       // This test documents the architectural rule; it cannot fail at runtime
       // but serves as a reference for the layer boundary constraint.
       expect(true, isTrue,
-          reason: 'Provider must not import quote_database.dart — enforced by CI grep');
+          reason:
+              'Provider must not import quote_database.dart — enforced by CI grep');
     });
   });
 }

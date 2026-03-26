@@ -107,4 +107,64 @@ class QuoteDatabase {
     if (rows.isEmpty) return null;
     return Quote.fromMap(rows.first);
   }
+
+  /// Inserts a new [Quote] into the `quotes` table.
+  ///
+  /// Uses [ConflictAlgorithm.replace] so that re-inserting the same ID
+  /// updates the existing row rather than throwing an error.
+  Future<void> insertQuote(Quote quote) async {
+    await _db!.insert(
+      'quotes',
+      quote.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Updates the row matching [quote.id] with the new field values.
+  ///
+  /// Only updates rows whose `id` matches — no other rows are touched.
+  Future<void> updateQuote(Quote quote) async {
+    await _db!.update(
+      'quotes',
+      quote.toMap(),
+      where: 'id = ?',
+      whereArgs: [quote.id],
+    );
+  }
+
+  /// Deletes the row whose `id` matches [id].
+  ///
+  /// No-op if the id does not exist.
+  Future<void> deleteQuote(String id) async {
+    await _db!.delete(
+      'quotes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Returns all quotes whose `source` column matches [source].
+  Future<List<Quote>> getBySource(QuoteSource source) async {
+    final rows = await _db!.query(
+      'quotes',
+      where: 'source = ?',
+      whereArgs: [source.name],
+    );
+    return rows.map(Quote.fromMap).toList();
+  }
+
+  /// Returns all quotes whose `tags` JSON string contains [tag].
+  ///
+  /// Uses a SQLite `LIKE` query against the serialised JSON. This is
+  /// deterministic for the predefined tag set because tag names do not
+  /// overlap as substrings of one another and are always stored in a
+  /// canonical `["tag1","tag2"]` JSON format via [Quote.toMap].
+  Future<List<Quote>> getByTag(String tag) async {
+    final rows = await _db!.query(
+      'quotes',
+      where: 'tags LIKE ?',
+      whereArgs: ['%"$tag"%'],
+    );
+    return rows.map(Quote.fromMap).toList();
+  }
 }

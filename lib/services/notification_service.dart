@@ -1,8 +1,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kindwords/services/quote_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
-import 'quote_service.dart';
 
 /// Abstract interface for notification services.
 ///
@@ -14,9 +14,6 @@ abstract class NotificationServiceBase {
 }
 
 /// Handles daily scheduled notifications using [flutter_local_notifications].
-///
-/// Wave 3 (Task 03.01) will implement full scheduling logic.
-/// This stub exposes the correct interface and channel setup.
 ///
 /// Android-specific notes:
 /// - Requires SCHEDULE_EXACT_ALARM (API 31–32) or USE_EXACT_ALARM (API 33+)
@@ -50,6 +47,11 @@ class NotificationService implements NotificationServiceBase {
 
     await _plugin.initialize(initSettings);
     await _createNotificationChannel();
+
+    // Request POST_NOTIFICATIONS permission once at init (Android 13+ / API 33+).
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.requestNotificationsPermission();
   }
 
   /// Schedules a daily notification at [hour]:[minute].
@@ -57,10 +59,23 @@ class NotificationService implements NotificationServiceBase {
   /// Cancels any existing scheduled notification before rescheduling.
   /// Persists the chosen time to [SharedPreferences].
   ///
-  /// TODO (Wave 3, Task 03.01): Implement full scheduling logic.
+  /// Checks exact-alarm permission before scheduling (required on API 31+).
+  /// Returns early if permission is not granted, directing the user to grant
+  /// permission in system settings before the notification can be scheduled.
   @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
     await cancelNotification();
+
+    // Guard: check exact-alarm permission before every zonedSchedule call.
+    // Permission can be revoked at any time via Battery settings (API 31+).
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    final canSchedule =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+    if (!canSchedule) {
+      await androidPlugin?.requestExactAlarmsPermission();
+      return;
+    }
 
     final quote = await _quoteService.getRandomQuote();
     final scheduledTime = _nextInstanceOf(hour, minute);
@@ -90,8 +105,6 @@ class NotificationService implements NotificationServiceBase {
     await prefs.setBool(_prefEnabled, true);
     await prefs.setInt(_prefHour, hour);
     await prefs.setInt(_prefMinute, minute);
-
-    // TODO: use a proper logger — removed debugPrint (R1.3)
   }
 
   /// Cancels the scheduled daily notification and marks it disabled.

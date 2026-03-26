@@ -114,3 +114,91 @@ Reason: the database-first pivot is now the gating lane for favorites persistenc
 - Keep `02.01` structurally valid and available in parallel; it does not need to wait for the quote-storage pivot.
 - Keep `03.02` as a verification-led backlog item first; only open follow-up implementation work if device audit evidence exposes a real scheduling gap.
 - Use individual task frontmatter as source of truth if it ever conflicts with this summary.
+
+## Sprint 2 Overview
+
+Sprint 2 adds local quote CRUD on top of the finished offline foundation from Sprint 1. The plan keeps migration, storage expansion, browse flows, form flows, and cross-screen integration in narrow waves so favorites, notifications, and the random quote journey stay stable while the app gains a user-managed local quote collection.
+
+## Sprint 2 Current Execution State
+
+- Backlog ready: `05`, `05.01`, `05.02`, `06`, `06.01`, `07`, `07.01`, `07.02`, `08`, `08.01`, `08.02`, `08.03`
+- Ongoing: empty
+- Done: empty
+
+## Sprint 2 Task Summary
+
+| ID | Title | Type | Cx | Wave | Depends | Parallel with |
+|----|-------|------|----|------|---------|---------------|
+| 05 | Quote CRUD foundation and data model | feat | L | 1 | 04.02 | 06, 07, 08 |
+| 05.01 | Extend quote entity and migrate local quote storage | feat | M | 1 | 04.02 | — |
+| 05.02 | Expand quote CRUD access and catalog state management | feat | M | 2 | 05.01 | — |
+| 06 | Quote catalog and browse/read flows | feat | L | 3 | 05.02 | 08 |
+| 06.01 | Deliver quote catalog browse and filter experience | feat | M | 3 | 05.02 | — |
+| 07 | Quote create/edit/delete form flows | feat | L | 4 | 06.01 | 08 |
+| 07.01 | Deliver quote create flow | feat | M | 4 | 06.01 | — |
+| 07.02 | Deliver quote edit and delete flows | feat | M | 5 | 07.01 | — |
+| 08 | Favorites and navigation integration | feat | L | 6 | 07.02, 06.01 | — |
+| 08.01 | Extend favorites for quote edit and delete continuity | feat | M | 6 | 07.02, 02.03 | 08.02 |
+| 08.02 | Expand top-level navigation for quote catalog access | feat | S | 6 | 06.01 | 08.01 |
+| 08.03 | Run quote CRUD regression verification | test | M | 7 | 08.01, 08.02 | — |
+
+## Sprint 2 Execution Waves
+
+### Wave 1 - Data model and migration foundation
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 05.01 | Extend quote entity and migrate local quote storage | feat | M | 04.02 | — |
+
+### Wave 2 - CRUD access and provider state foundation
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 05.02 | Expand quote CRUD access and catalog state management | feat | M | 05.01 | — |
+
+### Wave 3 - Quote catalog browse/read surface
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 06.01 | Deliver quote catalog browse and filter experience | feat | M | 05.02 | — |
+
+### Wave 4 - Quote create flow
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 07.01 | Deliver quote create flow | feat | M | 06.01 | — |
+
+### Wave 5 - Quote edit and delete flow
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 07.02 | Deliver quote edit and delete flows | feat | M | 07.01 | — |
+
+### Wave 6 - Cross-screen integration
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 08.01 | Extend favorites for quote edit and delete continuity | feat | M | 07.02, 02.03 | 08.02 |
+| 08.02 | Expand top-level navigation for quote catalog access | feat | S | 06.01 | 08.01 |
+
+### Wave 7 - Regression verification
+| ID | Title | Type | Cx | Depends | Parallel with |
+|----|-------|------|----|---------|---------------|
+| 08.03 | Run quote CRUD regression verification | test | M | 08.01, 08.02 | — |
+
+## Sprint 2 Dependency Graph
+
+05.01 -> 05.02 -> 06.01 -> 07.01 -> 07.02 -> 08.01 -> 08.03
+06.01 -> 08.02 -> 08.03
+02.03 -> 08.01
+04.02 -> 05.01
+
+## Sprint 2 Critical Path
+
+04.02 -> 05.01 -> 05.02 -> 06.01 -> 07.01 -> 07.02 -> 08.01 -> 08.03
+
+Reason: safe migration and CRUD contracts must land before UI flows can rely on them, and favorites continuity remains the last user-facing integration gate before final regression verification.
+
+## Sprint 2 Planning Notes For Orchestrator
+
+- Use `vault/ai/docs/srs-quote-crud-update.md` as the source of truth when it conflicts with discovery or UI notes.
+- Treat the predefined tag set as fixed for this sprint and keep selection to 0-3 tags; do not introduce free-form tag creation.
+- Treat seeded quote edits and deletes as local-only mutations of the device database. No task should imply bundle mutation, sync, or remote propagation.
+- Preserve Sprint 1 behavior as a standing compatibility gate: random quote display, favorites persistence, and daily notifications must remain functional after every wave.
+- Follow the repo's BDD-first model for every feature task: QA writes failing tests first, coder implements to green, then the wave passes through an integrate gate before the next wave opens.
+- `08.03` should verify migration, CRUD operations, filter behavior, form validation, favorites continuity, and notification/random-quote non-regression in one closing pass.
+- Resolve the `personal` tag ambiguity in favor of the SRS: it is part of the predefined selectable tag set, but not an automatically required tag for new quotes unless a later approved requirement says otherwise.

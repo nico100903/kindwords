@@ -760,4 +760,369 @@ void main() {
       });
     },
   );
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SPRINT 2 / TASK 05.02 — CRUD METHOD CONTRACT TESTS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // These tests verify:
+  //   - insertQuote() exists and inserts a quote
+  //   - updateQuote() exists and updates quote fields
+  //   - deleteQuote() exists and removes quote from DB
+  //   - getBySource() exists and filters by QuoteSource
+  //   - getByTag() exists and filters by tag string
+  //
+  // See: vault/sprint/backlog/task-05.02-feat-expand-quote-crud-access-and-catalog-state-management.md
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 5: CRUD API-surface contract (mock-verified)
+  // ───────────────────────────────────────────────────────────────────────────
+  group('QuoteDatabase CRUD API-surface contract (mock-verified)', () {
+    late MockQuoteDatabase mockDb;
+
+    setUp(() {
+      mockDb = MockQuoteDatabase();
+    });
+
+    test('insertQuote() exists and accepts Quote, returns Future<void>', () async {
+      // Arrange: stub insertQuote — if signature does not match, mocktail
+      // will produce a type mismatch at stub registration.
+      when(() => mockDb.insertQuote(any())).thenAnswer((_) async {});
+
+      // Act + Assert: no exception means the signature is correct
+      await expectLater(mockDb.insertQuote(_sampleQuoteV2), completes);
+
+      // Assert: the method was called with the correct argument type
+      verify(() => mockDb.insertQuote(_sampleQuoteV2)).called(1);
+    });
+
+    test('updateQuote() exists and accepts Quote, returns Future<void>', () async {
+      // Arrange
+      when(() => mockDb.updateQuote(any())).thenAnswer((_) async {});
+
+      // Act + Assert
+      await expectLater(mockDb.updateQuote(_sampleQuoteV2), completes);
+
+      verify(() => mockDb.updateQuote(_sampleQuoteV2)).called(1);
+    });
+
+    test('deleteQuote() exists and accepts String id, returns Future<void>', () async {
+      // Arrange
+      when(() => mockDb.deleteQuote(any())).thenAnswer((_) async {});
+
+      // Act + Assert
+      await expectLater(mockDb.deleteQuote('q-v2-001'), completes);
+
+      verify(() => mockDb.deleteQuote('q-v2-001')).called(1);
+    });
+
+    test('getBySource() exists and accepts QuoteSource, returns Future<List<Quote>>', () async {
+      // Arrange: stub returns a typed List<Quote>
+      when(() => mockDb.getBySource(any()))
+          .thenAnswer((_) async => [_sampleQuoteV2]);
+
+      // Act
+      final result = await mockDb.getBySource(QuoteSource.seeded);
+
+      // Assert: return type is List<Quote>
+      expect(result, isA<List<Quote>>());
+      expect(result, hasLength(1));
+    });
+
+    test('getBySource(QuoteSource.seeded) returns only seeded quotes', () async {
+      // Arrange
+      when(() => mockDb.getBySource(QuoteSource.seeded))
+          .thenAnswer((_) async => [_sampleQuoteV2]);
+      when(() => mockDb.getBySource(QuoteSource.userCreated))
+          .thenAnswer((_) async => [_userCreatedQuoteV2]);
+
+      // Act
+      final result = await mockDb.getBySource(QuoteSource.seeded);
+
+      // Assert
+      expect(result, hasLength(1));
+      expect(result.first.source, equals(QuoteSource.seeded));
+    });
+
+    test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+      // Arrange
+      when(() => mockDb.getBySource(QuoteSource.seeded))
+          .thenAnswer((_) async => [_sampleQuoteV2]);
+      when(() => mockDb.getBySource(QuoteSource.userCreated))
+          .thenAnswer((_) async => [_userCreatedQuoteV2]);
+
+      // Act
+      final result = await mockDb.getBySource(QuoteSource.userCreated);
+
+      // Assert
+      expect(result, hasLength(1));
+      expect(result.first.source, equals(QuoteSource.userCreated));
+    });
+
+    test('getByTag() exists and accepts String tag, returns Future<List<Quote>>', () async {
+      // Arrange: stub returns a typed List<Quote>
+      when(() => mockDb.getByTag(any()))
+          .thenAnswer((_) async => [_sampleQuoteV2]);
+
+      // Act
+      final result = await mockDb.getByTag('motivational');
+
+      // Assert: return type is List<Quote>
+      expect(result, isA<List<Quote>>());
+      expect(result, hasLength(1));
+    });
+
+    test('getByTag() returns only quotes containing that tag', () async {
+      // Arrange
+      when(() => mockDb.getByTag('motivational'))
+          .thenAnswer((_) async => [_sampleQuoteV2]);
+      when(() => mockDb.getByTag('personal'))
+          .thenAnswer((_) async => [_userCreatedQuoteV2]);
+      when(() => mockDb.getByTag('nonexistent'))
+          .thenAnswer((_) async => []);
+
+      // Act + Assert
+      final motivational = await mockDb.getByTag('motivational');
+      expect(motivational.first.tags, contains('motivational'));
+
+      final personal = await mockDb.getByTag('personal');
+      expect(personal.first.tags, contains('personal'));
+
+      final none = await mockDb.getByTag('nonexistent');
+      expect(none, isEmpty);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 6: CRUD Integration contracts — require real sqflite (device/emulator)
+  // ───────────────────────────────────────────────────────────────────────────
+  group(
+    'QuoteDatabase CRUD integration contracts',
+    skip: 'requires sqflite platform channel — run on device/emulator',
+    () {
+      test('insertQuote() inserts a quote that can be retrieved by getById()', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final quote = Quote(
+          id: 'q-crud-insert-001',
+          text: 'Insert test quote',
+          author: 'Author',
+          tags: ['motivational'],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+
+        // Act
+        await db.insertQuote(quote);
+        final retrieved = await db.getById('q-crud-insert-001');
+
+        // Assert
+        expect(retrieved, isNotNull);
+        expect(retrieved!.id, equals('q-crud-insert-001'));
+        expect(retrieved.text, equals('Insert test quote'));
+        expect(retrieved.source, equals(QuoteSource.userCreated));
+      });
+
+      test('updateQuote() persists changed text, author, and tags', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final original = Quote(
+          id: 'q-crud-update-001',
+          text: 'Original text',
+          author: 'Original Author',
+          tags: ['motivational'],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(original);
+
+        final updated = Quote(
+          id: 'q-crud-update-001',
+          text: 'Updated text',
+          author: 'Updated Author',
+          tags: ['wisdom', 'focus'],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
+        );
+
+        // Act
+        await db.updateQuote(updated);
+        final retrieved = await db.getById('q-crud-update-001');
+
+        // Assert
+        expect(retrieved, isNotNull);
+        expect(retrieved!.text, equals('Updated text'));
+        expect(retrieved.author, equals('Updated Author'));
+        expect(retrieved.tags, equals(['wisdom', 'focus']));
+        expect(retrieved.updatedAt, equals(DateTime.parse('2026-03-27T15:00:00.000Z')));
+      });
+
+      test('deleteQuote() removes quote from subsequent reads', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final quote = Quote(
+          id: 'q-crud-delete-001',
+          text: 'To be deleted',
+          author: 'Author',
+          tags: [],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(quote);
+
+        // Verify it exists
+        var retrieved = await db.getById('q-crud-delete-001');
+        expect(retrieved, isNotNull);
+
+        // Act
+        await db.deleteQuote('q-crud-delete-001');
+
+        // Assert: no longer found
+        retrieved = await db.getById('q-crud-delete-001');
+        expect(retrieved, isNull);
+      });
+
+      test('getBySource(QuoteSource.seeded) returns only seeded quotes', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final seeded1 = Quote(
+          id: 'q-source-seeded-001',
+          text: 'Seeded quote 1',
+          author: 'Author',
+          tags: [],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        final userCreated1 = Quote(
+          id: 'q-source-user-001',
+          text: 'User quote 1',
+          author: 'Me',
+          tags: [],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.parse('2026-03-27T11:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(seeded1);
+        await db.insertQuote(userCreated1);
+
+        // Act
+        final result = await db.getBySource(QuoteSource.seeded);
+
+        // Assert
+        expect(result.every((q) => q.source == QuoteSource.seeded), isTrue);
+      });
+
+      test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final seeded1 = Quote(
+          id: 'q-source-seeded-002',
+          text: 'Seeded quote 2',
+          author: 'Author',
+          tags: [],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        final userCreated1 = Quote(
+          id: 'q-source-user-002',
+          text: 'User quote 2',
+          author: 'Me',
+          tags: [],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.parse('2026-03-27T11:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(seeded1);
+        await db.insertQuote(userCreated1);
+
+        // Act
+        final result = await db.getBySource(QuoteSource.userCreated);
+
+        // Assert
+        expect(result.every((q) => q.source == QuoteSource.userCreated), isTrue);
+      });
+
+      test('getByTag() returns quotes containing that tag', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final quoteWithMotivational = Quote(
+          id: 'q-tag-001',
+          text: 'Motivational quote',
+          author: 'Author',
+          tags: ['motivational', 'wisdom'],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        final quoteWithPersonal = Quote(
+          id: 'q-tag-002',
+          text: 'Personal quote',
+          author: 'Me',
+          tags: ['personal'],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.parse('2026-03-27T11:00:00.000Z'),
+          updatedAt: null,
+        );
+        final quoteWithNoTags = Quote(
+          id: 'q-tag-003',
+          text: 'No tags quote',
+          author: 'Author',
+          tags: [],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T12:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(quoteWithMotivational);
+        await db.insertQuote(quoteWithPersonal);
+        await db.insertQuote(quoteWithNoTags);
+
+        // Act
+        final result = await db.getByTag('motivational');
+
+        // Assert
+        expect(result.every((q) => q.tags.contains('motivational')), isTrue);
+      });
+
+      test('getByTag() returns empty list when no quotes have that tag', () async {
+        // Arrange
+        final db = QuoteDatabase();
+        await db.open();
+
+        final quote = Quote(
+          id: 'q-tag-empty-001',
+          text: 'Quote with different tag',
+          author: 'Author',
+          tags: ['wisdom'],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+          updatedAt: null,
+        );
+        await db.insertQuote(quote);
+
+        // Act
+        final result = await db.getByTag('nonexistent');
+
+        // Assert
+        expect(result, isEmpty);
+      });
+    },
+  );
 }

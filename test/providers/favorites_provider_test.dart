@@ -277,4 +277,121 @@ void main() {
       );
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Sprint 2 / Task 05.02 — reload()
+  // -------------------------------------------------------------------------
+  // These tests verify the continuity hook that allows external code to
+  // refresh favorites from storage after quote mutations.
+  // See: vault/sprint/backlog/task-05.02-feat-expand-quote-crud-access-and-catalog-state-management.md
+  // -------------------------------------------------------------------------
+
+  group('FavoritesProvider.reload()', () {
+    test('reload() exists and returns Future<void>', () async {
+      // Arrange
+      await _settle();
+
+      // Act + Assert: method exists and can be called
+      // This will fail at compile time if method does not exist
+      await expectLater(provider.reload(), completes);
+    });
+
+    test('reload() re-fetches favorites from service', () async {
+      // Arrange
+      await _settle();
+      // Initial load already called once in constructor
+      clearInteractions(mockService);
+
+      // Stub: reload returns updated list
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA, _quoteB]);
+
+      // Act
+      await provider.reload();
+
+      // Assert: service was called
+      verify(() => mockService.loadFavorites()).called(1);
+    });
+
+    test('reload() updates favorites list with fresh data', () async {
+      // Arrange
+      await _settle();
+      expect(provider.favorites, isEmpty);
+
+      // Stub: reload returns updated list
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA, _quoteB]);
+
+      // Act
+      await provider.reload();
+
+      // Assert: favorites now contains fresh data
+      expect(provider.favorites.length, equals(2));
+      expect(provider.favorites, contains(_quoteA));
+      expect(provider.favorites, contains(_quoteB));
+    });
+
+    test('reload() replaces existing favorites with fresh data', () async {
+      // Arrange: start with _quoteA in favorites
+      await _settle();
+      await provider.addFavorite(_quoteA);
+      expect(provider.favorites.length, equals(1));
+
+      // Stub: reload returns only _quoteB (simulating external change)
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteB]);
+
+      // Act
+      await provider.reload();
+
+      // Assert: favorites replaced with fresh data
+      expect(provider.favorites.length, equals(1));
+      expect(provider.favorites, contains(_quoteB));
+      expect(provider.favorites, isNot(contains(_quoteA)));
+    });
+
+    test('reload() calls notifyListeners() after update', () async {
+      // Arrange
+      await _settle();
+
+      var notifyCount = 0;
+      provider.addListener(() => notifyCount++);
+
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA]);
+
+      // Act
+      await provider.reload();
+
+      // Assert
+      expect(notifyCount, greaterThanOrEqualTo(1),
+          reason: 'reload must call notifyListeners() after update');
+    });
+
+    test('reload() handles empty result from service', () async {
+      // Arrange
+      await _settle();
+      await provider.addFavorite(_quoteA);
+      expect(provider.favorites, isNotEmpty);
+
+      // Stub: reload returns empty (all favorites removed externally)
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => []);
+
+      // Act
+      await provider.reload();
+
+      // Assert
+      expect(provider.favorites, isEmpty);
+    });
+
+    test('reload() preserves isFavorite() correctness after reload', () async {
+      // Arrange
+      await _settle();
+
+      when(() => mockService.loadFavorites()).thenAnswer((_) async => [_quoteA]);
+
+      // Act
+      await provider.reload();
+
+      // Assert
+      expect(provider.isFavorite(_quoteA), isTrue);
+      expect(provider.isFavorite(_quoteB), isFalse);
+    });
+  });
 }

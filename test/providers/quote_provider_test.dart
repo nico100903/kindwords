@@ -168,4 +168,133 @@ void main() {
               'after the new quote is available');
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Sprint 2 / Task 05.02 — refreshCurrentIfStale()
+  // -------------------------------------------------------------------------
+  // These tests verify the continuity hook that allows QuoteCatalogProvider
+  // to signal when a displayed quote may have been updated/deleted.
+  // See: vault/sprint/backlog/task-05.02-feat-expand-quote-crud-access-and-catalog-state-management.md
+  // -------------------------------------------------------------------------
+
+  group('QuoteProvider.refreshCurrentIfStale()', () {
+    test('refreshCurrentIfStale() exists and accepts String id', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      // Act + Assert: method exists and can be called
+      // This will fail at compile time if method does not exist
+      await expectLater(provider.refreshCurrentIfStale('qa'), completes);
+    });
+
+    test('fetches fresh quote from service if currentQuote.id matches id', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      // Initial state: currentQuote is _quoteA (id: 'qa')
+      expect(provider.currentQuote?.id, equals('qa'));
+
+      // Stub: getQuoteById returns updated version
+      final freshQuote = Quote(
+        id: 'qa',
+        text: 'Updated Quote A',
+        author: 'New Author',
+        tags: ['motivational'],
+        source: QuoteSource.seeded,
+        createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+        updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
+      );
+      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+
+      // Act
+      await provider.refreshCurrentIfStale('qa');
+
+      // Assert: currentQuote was refreshed
+      verify(() => mockService.getQuoteById('qa')).called(1);
+    });
+
+    test('does NOT fetch if currentQuote.id does NOT match id', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      // currentQuote is _quoteA (id: 'qa'), but we pass different id
+      when(() => mockService.getQuoteById(any())).thenAnswer((_) async => null);
+
+      // Act
+      await provider.refreshCurrentIfStale('qb'); // different id
+
+      // Assert: service was NOT called
+      verifyNever(() => mockService.getQuoteById(any()));
+    });
+
+    test('updates currentQuote with fresh quote after fetch', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      final freshQuote = Quote(
+        id: 'qa',
+        text: 'Fresh Quote A',
+        author: 'Fresh Author',
+        tags: [],
+        source: QuoteSource.seeded,
+        createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+        updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
+      );
+      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+
+      // Act
+      await provider.refreshCurrentIfStale('qa');
+
+      // Assert: currentQuote was updated
+      expect(provider.currentQuote?.text, equals('Fresh Quote A'));
+      expect(provider.currentQuote?.author, equals('Fresh Author'));
+    });
+
+    test('calls notifyListeners() after refreshing currentQuote', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      var notifyCount = 0;
+      provider.addListener(() => notifyCount++);
+
+      final freshQuote = Quote(
+        id: 'qa',
+        text: 'Fresh Quote',
+        author: 'Author',
+        tags: [],
+        source: QuoteSource.seeded,
+        createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+        updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
+      );
+      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => freshQuote);
+
+      // Act
+      await provider.refreshCurrentIfStale('qa');
+
+      // Assert
+      expect(notifyCount, greaterThanOrEqualTo(1),
+          reason: 'refreshCurrentIfStale must call notifyListeners() after update');
+    });
+
+    test('handles case where quote was deleted (service returns null)', () async {
+      // Arrange
+      final provider = QuoteProvider(mockService);
+      await Future<void>.microtask(() {});
+
+      when(() => mockService.getQuoteById('qa')).thenAnswer((_) async => null);
+
+      // Act
+      await provider.refreshCurrentIfStale('qa');
+
+      // Assert: should not throw; currentQuote behavior is implementation-defined
+      // (could keep stale, could set to null, or could get a new random quote)
+      // The key is that it doesn't crash.
+      expect(provider.currentQuote, isA<Quote?>());
+    });
+  });
 }

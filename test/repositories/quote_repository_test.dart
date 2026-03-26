@@ -1,3 +1,4 @@
+// ignore_for_file: require_trailing_commas
 // Wave R4 — Failing contract tests for LocalQuoteRepository
 //
 // These tests FAIL at compile time until the coder creates:
@@ -38,6 +39,27 @@ const _quoteAnonymous = Quote(
   id: 'q002',
   text: 'You are braver than you believe.',
   author: null,
+);
+
+// v2 fixtures (with all new fields)
+final _seededQuoteV2 = Quote(
+  id: 'q-v2-seeded-001',
+  text: 'Seeded quote for CRUD',
+  author: 'Author',
+  tags: ['motivational', 'wisdom'],
+  source: QuoteSource.seeded,
+  createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+  updatedAt: null,
+);
+
+final _userCreatedQuoteV2 = Quote(
+  id: 'q-v2-user-001',
+  text: 'User created quote for CRUD',
+  author: 'Me',
+  tags: ['personal'],
+  source: QuoteSource.userCreated,
+  createdAt: DateTime.parse('2026-03-27T11:00:00.000Z'),
+  updatedAt: DateTime.parse('2026-03-27T12:00:00.000Z'),
 );
 
 void main() {
@@ -172,6 +194,196 @@ void main() {
       await repo.getById(targetId);
 
       verify(() => mockDb.getById(targetId)).called(1);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SPRINT 2 / TASK 05.02 — CRUD METHOD CONTRACT TESTS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // These tests verify:
+  //   - insertQuote() delegates to DB and returns void
+  //   - updateQuote() delegates to DB and returns void
+  //   - deleteQuote() delegates to DB and returns void
+  //   - getBySource() delegates to DB and returns filtered list
+  //   - getByTag() delegates to DB and returns filtered list
+  //
+  // See: vault/sprint/backlog/task-05.02-feat-expand-quote-crud-access-and-catalog-state-management.md
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 4: insertQuote() — delegation
+  // ───────────────────────────────────────────────────────────────────────────
+  group('LocalQuoteRepository.insertQuote()', () {
+    test('delegates to QuoteDatabase.insertQuote() and completes', () async {
+      // Arrange
+      when(() => mockDb.insertQuote(any())).thenAnswer((_) async {});
+
+      // Act
+      await repo.insertQuote(_userCreatedQuoteV2);
+
+      // Assert: DB called exactly once with correct quote
+      verify(() => mockDb.insertQuote(_userCreatedQuoteV2)).called(1);
+    });
+
+    test('passes v2 Quote with all fields to database', () async {
+      // Arrange
+      when(() => mockDb.insertQuote(any())).thenAnswer((_) async {});
+
+      // Act
+      await repo.insertQuote(_userCreatedQuoteV2);
+
+      // Assert
+      final captured = verify(() => mockDb.insertQuote(captureAny())).captured.single as Quote;
+      expect(captured.id, equals('q-v2-user-001'));
+      expect(captured.source, equals(QuoteSource.userCreated));
+      expect(captured.tags, equals(['personal']));
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 5: updateQuote() — delegation
+  // ───────────────────────────────────────────────────────────────────────────
+  group('LocalQuoteRepository.updateQuote()', () {
+    test('delegates to QuoteDatabase.updateQuote() and completes', () async {
+      // Arrange
+      when(() => mockDb.updateQuote(any())).thenAnswer((_) async {});
+
+      // Act
+      await repo.updateQuote(_seededQuoteV2);
+
+      // Assert: DB called exactly once
+      verify(() => mockDb.updateQuote(_seededQuoteV2)).called(1);
+    });
+
+    test('passes updated Quote with changed fields to database', () async {
+      // Arrange
+      when(() => mockDb.updateQuote(any())).thenAnswer((_) async {});
+
+      final updated = Quote(
+        id: 'q-v2-seeded-001',
+        text: 'Updated text',
+        author: 'New Author',
+        tags: ['focus'],
+        source: QuoteSource.seeded,
+        createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
+        updatedAt: DateTime.parse('2026-03-27T15:00:00.000Z'),
+      );
+
+      // Act
+      await repo.updateQuote(updated);
+
+      // Assert
+      final captured = verify(() => mockDb.updateQuote(captureAny())).captured.single as Quote;
+      expect(captured.text, equals('Updated text'));
+      expect(captured.author, equals('New Author'));
+      expect(captured.tags, equals(['focus']));
+      expect(captured.updatedAt, isNotNull);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 6: deleteQuote() — delegation
+  // ───────────────────────────────────────────────────────────────────────────
+  group('LocalQuoteRepository.deleteQuote()', () {
+    test('delegates to QuoteDatabase.deleteQuote() and completes', () async {
+      // Arrange
+      when(() => mockDb.deleteQuote(any())).thenAnswer((_) async {});
+
+      // Act
+      await repo.deleteQuote('q-v2-seeded-001');
+
+      // Assert: DB called exactly once with correct id
+      verify(() => mockDb.deleteQuote('q-v2-seeded-001')).called(1);
+    });
+
+    test('passes exact id string to database without modification', () async {
+      // Contract: id must be forwarded verbatim
+      const targetId = 'q-delete-target';
+      when(() => mockDb.deleteQuote(any())).thenAnswer((_) async {});
+
+      await repo.deleteQuote(targetId);
+
+      verify(() => mockDb.deleteQuote(targetId)).called(1);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 7: getBySource() — delegation and filtering
+  // ───────────────────────────────────────────────────────────────────────────
+  group('LocalQuoteRepository.getBySource()', () {
+    test('delegates to QuoteDatabase.getBySource() and returns the result', () async {
+      // Arrange
+      when(() => mockDb.getBySource(QuoteSource.seeded))
+          .thenAnswer((_) async => [_seededQuoteV2]);
+
+      // Act
+      final result = await repo.getBySource(QuoteSource.seeded);
+
+      // Assert
+      expect(result, hasLength(1));
+      expect(result.first.source, equals(QuoteSource.seeded));
+      verify(() => mockDb.getBySource(QuoteSource.seeded)).called(1);
+    });
+
+    test('returns empty list when DB returns no matching quotes', () async {
+      // Edge case: no quotes with that source
+      when(() => mockDb.getBySource(QuoteSource.userCreated))
+          .thenAnswer((_) async => []);
+
+      final result = await repo.getBySource(QuoteSource.userCreated);
+
+      expect(result, isEmpty);
+    });
+
+    test('getBySource(QuoteSource.userCreated) returns only user-created quotes', () async {
+      // Arrange
+      when(() => mockDb.getBySource(QuoteSource.userCreated))
+          .thenAnswer((_) async => [_userCreatedQuoteV2]);
+
+      // Act
+      final result = await repo.getBySource(QuoteSource.userCreated);
+
+      // Assert
+      expect(result.every((q) => q.source == QuoteSource.userCreated), isTrue);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Group 8: getByTag() — delegation and filtering
+  // ───────────────────────────────────────────────────────────────────────────
+  group('LocalQuoteRepository.getByTag()', () {
+    test('delegates to QuoteDatabase.getByTag() and returns the result', () async {
+      // Arrange
+      when(() => mockDb.getByTag('motivational'))
+          .thenAnswer((_) async => [_seededQuoteV2]);
+
+      // Act
+      final result = await repo.getByTag('motivational');
+
+      // Assert
+      expect(result, hasLength(1));
+      expect(result.first.tags, contains('motivational'));
+      verify(() => mockDb.getByTag('motivational')).called(1);
+    });
+
+    test('returns empty list when no quotes have that tag', () async {
+      // Edge case: no matching tags
+      when(() => mockDb.getByTag('nonexistent'))
+          .thenAnswer((_) async => []);
+
+      final result = await repo.getByTag('nonexistent');
+
+      expect(result, isEmpty);
+    });
+
+    test('passes exact tag string to database without modification', () async {
+      // Contract: tag must be forwarded verbatim
+      const targetTag = 'personal';
+      when(() => mockDb.getByTag(any())).thenAnswer((_) async => []);
+
+      await repo.getByTag(targetTag);
+
+      verify(() => mockDb.getByTag(targetTag)).called(1);
     });
   });
 }

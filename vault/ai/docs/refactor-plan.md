@@ -78,6 +78,13 @@ Each wave is independently runnable and leaves the app in a working state.
 
 **Gate:** `flutter analyze` exits 0. `flutter test` exits 0. Round-trip test passes.
 
+#### Wave R2 — Completed 2026-03-26
+- Commits: [QA hash 3ee5f76, coder hash 4e1a344]
+- Files modified: lib/models/quote.dart
+- Tests added: 14 (test/models/quote_model_test.dart)
+- Analyze: 0 issues (4 pre-existing `require_trailing_commas` in QA test file flagged — outside coder scope; pre-existed in QA's commit 3ee5f76)
+- Tests: flutter test — 62 passed, 0 failed (48 pre-existing + 14 new model tests)
+
 ---
 
 ### Wave R3 — Dev Dependency Upgrade (mocktail + sqflite)

@@ -63,7 +63,8 @@ void main() {
       await expectLater(mockDb.open(), completes);
     });
 
-    test('seedIfEmpty() exists and accepts List<Quote>, returns Future<void>', () async {
+    test('seedIfEmpty() exists and accepts List<Quote>, returns Future<void>',
+        () async {
       // Arrange: stub with a List<Quote> parameter
       when(() => mockDb.seedIfEmpty(any())).thenAnswer((_) async {});
 
@@ -87,7 +88,8 @@ void main() {
       expect(result, hasLength(2));
     });
 
-    test('getById() exists and accepts String id, returns Future<Quote?>', () async {
+    test('getById() exists and accepts String id, returns Future<Quote?>',
+        () async {
       // Arrange: stub returns a nullable Quote — both paths must be type-safe
       when(() => mockDb.getById('q001')).thenAnswer((_) async => _sampleQuote);
       when(() => mockDb.getById('nonexistent')).thenAnswer((_) async => null);
@@ -102,7 +104,9 @@ void main() {
       expect(notFound, isNull);
     });
 
-    test('getAllQuotes() returns List<Quote> with nullable author fields intact', () async {
+    test(
+        'getAllQuotes() returns List<Quote> with nullable author fields intact',
+        () async {
       // Edge case: anonymous quotes (null author) must not be cast-stripped
       when(() => mockDb.getAllQuotes())
           .thenAnswer((_) async => [_anonymousQuote]);
@@ -159,7 +163,8 @@ void main() {
       });
 
       // QG4: after seeding kAllQuotes, getAllQuotes() returns >=100 quotes
-      test('getAllQuotes() returns at least 100 quotes after seeding kAllQuotes',
+      test(
+          'getAllQuotes() returns at least 100 quotes after seeding kAllQuotes',
           () async {
         // Arrange: seed with the full production catalog
         // NOTE: coder imports kAllQuotes and passes it to seedIfEmpty in bootstrapApp.
@@ -186,7 +191,8 @@ void main() {
         expect(
           all.length,
           greaterThanOrEqualTo(100),
-          reason: 'QG4: getAllQuotes() must return >=100 after seeding 100 quotes',
+          reason:
+              'QG4: getAllQuotes() must return >=100 after seeding 100 quotes',
         );
       });
 
@@ -207,7 +213,8 @@ void main() {
         expect(
           found,
           isNotNull,
-          reason: 'QG5: getById must return non-null for a quote that was seeded',
+          reason:
+              'QG5: getById must return non-null for a quote that was seeded',
         );
         expect(found!.id, equals('q001'));
         expect(found.text, equals(seed.text));
@@ -225,7 +232,8 @@ void main() {
       });
 
       // Edge case: getById returns quote with null author (anonymous quote)
-      test('getById returns anonymous quote with null author correctly', () async {
+      test('getById returns anonymous quote with null author correctly',
+          () async {
         final db = QuoteDatabase();
         await db.open();
 

@@ -65,7 +65,8 @@ void main() {
   // Group 2: getAllQuotes() — delegation and return value pass-through
   // ───────────────────────────────────────────────────────────────────────────
   group('LocalQuoteRepository.getAllQuotes()', () {
-    test('delegates to QuoteDatabase.getAllQuotes() and returns the result', () async {
+    test('delegates to QuoteDatabase.getAllQuotes() and returns the result',
+        () async {
       // Arrange: DB returns a known list
       final expected = [_quoteWithAuthor, _quoteAnonymous];
       when(() => mockDb.getAllQuotes()).thenAnswer((_) async => expected);
@@ -99,7 +100,8 @@ void main() {
       expect(result.first.author, isNull);
     });
 
-    test('does not call QuoteDatabase.getById() when getAllQuotes() is called', () async {
+    test('does not call QuoteDatabase.getById() when getAllQuotes() is called',
+        () async {
       // Isolation: getAllQuotes must not leak into other DB methods
       when(() => mockDb.getAllQuotes()).thenAnswer((_) async => []);
 
@@ -113,7 +115,8 @@ void main() {
   // Group 3: getById() — delegation, found case, not-found case
   // ───────────────────────────────────────────────────────────────────────────
   group('LocalQuoteRepository.getById()', () {
-    test('delegates to QuoteDatabase.getById() and returns the found Quote', () async {
+    test('delegates to QuoteDatabase.getById() and returns the found Quote',
+        () async {
       // Arrange: DB finds q001
       when(() => mockDb.getById('q001'))
           .thenAnswer((_) async => _quoteWithAuthor);
@@ -126,7 +129,8 @@ void main() {
       verify(() => mockDb.getById('q001')).called(1);
     });
 
-    test('returns null when QuoteDatabase returns null for an unknown id', () async {
+    test('returns null when QuoteDatabase returns null for an unknown id',
+        () async {
       // Edge case: nonexistent id — repository must pass null through unchanged,
       // not throw, not substitute a default quote.
       when(() => mockDb.getById('nonexistent')).thenAnswer((_) async => null);
@@ -137,7 +141,8 @@ void main() {
       verify(() => mockDb.getById('nonexistent')).called(1);
     });
 
-    test('returns a Quote with null author when DB returns an anonymous quote', () async {
+    test('returns a Quote with null author when DB returns an anonymous quote',
+        () async {
       // Edge case: author nullable field must survive the delegation path
       when(() => mockDb.getById('q002'))
           .thenAnswer((_) async => _quoteAnonymous);
@@ -148,7 +153,8 @@ void main() {
       expect(result!.author, isNull);
     });
 
-    test('does not call QuoteDatabase.getAllQuotes() when getById() is called', () async {
+    test('does not call QuoteDatabase.getAllQuotes() when getById() is called',
+        () async {
       // Isolation: getById must not trigger a full table scan
       when(() => mockDb.getById(any())).thenAnswer((_) async => null);
 

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/quote_database.dart';
+import '../data/quotes_data.dart';
 import '../providers/quote_provider.dart';
 import '../providers/favorites_provider.dart';
+import '../repositories/quote_repository.dart';
 import '../services/quote_service.dart';
 import '../services/favorites_service.dart';
 import '../services/notification_service.dart';
@@ -13,7 +16,23 @@ import '../screens/settings_screen.dart';
 ///
 /// Creates services in dependency order, initializes notifications,
 /// and builds the provider tree with the app widget.
+///
+/// Bootstrap ordering (non-negotiable per flutter-standards §3):
+///   1. Open database
+///   2. Seed quotes — must complete before any service reads
+///   3. Construct repository + services
 Future<Widget> bootstrapApp() async {
+  // 1. Open SQLite database
+  final db = QuoteDatabase();
+  await db.open();
+
+  // 2. Seed quotes table from embedded list (idempotent — no-op after first run)
+  await db.seedIfEmpty(kAllQuotes);
+
+  // 3. Construct repository (Wave R5 will wire this into QuoteService)
+  // ignore: unused_local_variable
+  final quoteRepo = LocalQuoteRepository(db);
+
   // Instantiate services in dependency order
   final quoteService = QuoteService();
   final favoritesService = FavoritesService(quoteService);

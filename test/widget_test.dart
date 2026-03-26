@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:kindwords/main.dart';
+import 'package:kindwords/bootstrap/app_bootstrap.dart';
 import 'package:kindwords/screens/favorites_screen.dart';
 import 'package:kindwords/providers/quote_provider.dart';
 import 'package:kindwords/providers/favorites_provider.dart';

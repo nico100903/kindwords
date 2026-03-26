@@ -67,13 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         hour: _notificationHour,
         minute: _notificationMinute,
       ),
-      builder: (context, child) {
-        return Localizations.override(
-          context: context,
-          locale: const Locale('en', 'GB'),
-          child: child!,
-        );
-      },
     );
 
     if (pickedTime != null) {
@@ -123,23 +116,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Enable Daily Notifications'),
                   subtitle: Text(
                     _notificationsEnabled
-                        ? 'Daily motivation at ${_formatTime(_notificationHour, _notificationMinute)}'
+                        ? 'Tap the time below to change the schedule'
                         : 'Notifications are disabled',
                   ),
                   value: _notificationsEnabled,
                   onChanged: _onToggleChanged,
                 ),
-                if (_notificationsEnabled)
-                  ListTile(
-                    leading: const Icon(Icons.access_time),
-                    title: const Text('Reminder Time'),
-                    subtitle: Text(
-                      _formatTime(_notificationHour, _notificationMinute),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: _pickTime,
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  title: const Text('Reminder Time'),
+                  subtitle: Text(
+                    _formatTime(_notificationHour, _notificationMinute),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickTime,
+                ),
                 const Divider(height: 32),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -55,6 +55,14 @@ Each wave is independently runnable and leaves the app in a working state.
 
 **Gate:** `flutter analyze` exits 0. `flutter test` exits 0. `dart format lib/ test/` produces no diff.
 
+#### Wave R1 — Completed 2026-03-26
+- Commits: b3b8ea0, 857f0dd, 10b7973, 13d1fca, 0ea72c6, 55f8d9e
+- Files modified: `test/widget_test.dart`, `lib/services/notification_service.dart`, `analysis_options.yaml`, `lib/screens/settings_screen.dart`, `lib/data/quotes_data.dart`, `lib/models/quote.dart`, `lib/screens/favorites_screen.dart`, `lib/screens/home_screen.dart`, `test/home_screen_quote_flow_test.dart`, `test/quote_data_test.dart`, `test/quote_service_no_repeat_test.dart`, `test/settings_screen_test.dart`
+- Analyze: 0 issues
+- Tests: flutter test — 48 passed, 0 failed
+- Format: no diff
+- Unexpected scope: `lib/screens/settings_screen.dart` — fixed 3 pre-existing test failures (TimePicker not found, time hidden when disabled) that would have blocked `flutter test` exit 0. `lib/data/quotes_data.dart`, `lib/models/quote.dart`, `lib/screens/favorites_screen.dart`, `lib/screens/home_screen.dart` — dart format line-wrapping applied by strict rules.
+
 ---
 
 ### Wave R2 — Quote Model Completeness

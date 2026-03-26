@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -92,7 +91,7 @@ class NotificationService implements NotificationServiceBase {
     await prefs.setInt(_prefHour, hour);
     await prefs.setInt(_prefMinute, minute);
 
-    debugPrint('NotificationService: scheduled daily at $hour:$minute');
+    // TODO: use a proper logger — removed debugPrint (R1.3)
   }
 
   /// Cancels the scheduled daily notification and marks it disabled.

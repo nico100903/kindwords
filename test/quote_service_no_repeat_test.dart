@@ -20,7 +20,7 @@ void main() {
           () {
         // Arrange: catalog has multiple quotes
         expect(kAllQuotes.length, greaterThan(1),
-            reason: 'Test assumes catalog has multiple quotes');
+            reason: 'Test assumes catalog has multiple quotes',);
 
         // Act & Assert: 10 consecutive calls, each passing previous id
         String? currentId;
@@ -28,7 +28,7 @@ void main() {
           final quote = quoteService.getRandomQuote(currentId: currentId);
           if (currentId != null) {
             expect(quote.id, isNot(equals(currentId)),
-                reason: 'Tap $i: getRandomQuote must not return same quote as currentId');
+                reason: 'Tap $i: getRandomQuote must not return same quote as currentId',);
           }
           currentId = quote.id;
         }
@@ -50,7 +50,7 @@ void main() {
         // Assert: should have seen multiple different quotes
         // With 110 quotes and random selection, 20 calls should hit at least 10 different ones
         expect(seenIds.length, greaterThanOrEqualTo(10),
-            reason: 'Random selection should distribute across catalog, not stay on same quote');
+            reason: 'Random selection should distribute across catalog, not stay on same quote',);
       });
 
       test('getRandomQuote without currentId returns any quote from catalog',
@@ -61,7 +61,7 @@ void main() {
         // Assert: quote exists in catalog
         final catalogIds = kAllQuotes.map((q) => q.id).toSet();
         expect(catalogIds.contains(quote.id), isTrue,
-            reason: 'getRandomQuote() must return a quote from the catalog');
+            reason: 'getRandomQuote() must return a quote from the catalog',);
       });
     });
 
@@ -81,7 +81,7 @@ void main() {
         
         // For now, verify our catalog has > 1 quote (so this edge doesn't apply)
         expect(kAllQuotes.length, greaterThan(1),
-            reason: 'Current catalog has multiple quotes, single-quote edge does not apply');
+            reason: 'Current catalog has multiple quotes, single-quote edge does not apply',);
       });
     });
 
@@ -98,7 +98,7 @@ void main() {
         
         // Verify current catalog is not empty (so fallback isn't used)
         expect(kAllQuotes.isNotEmpty, isTrue,
-            reason: 'Catalog should not be empty in production');
+            reason: 'Catalog should not be empty in production',);
       });
     });
   });

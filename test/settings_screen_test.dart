@@ -91,7 +91,7 @@ void main() {
 
         // Assert: Switch widget is present
         expect(find.byType(Switch), findsOneWidget, 
-            reason: 'Settings screen must have a Switch for notification toggle');
+            reason: 'Settings screen must have a Switch for notification toggle',);
       });
 
       testWidgets('loadSettings is called on screen initialization', 
@@ -105,7 +105,7 @@ void main() {
 
         // Assert: loadSettings was called to populate initial state
         expect(mockService.loadSettingsCalled, isTrue,
-            reason: 'SettingsScreen must call loadSettings() in initState');
+            reason: 'SettingsScreen must call loadSettings() in initState',);
       });
 
       testWidgets('Switch reflects enabled state when notifications are ON', 
@@ -120,7 +120,7 @@ void main() {
         // Assert: Switch is in ON position
         final switchWidget = tester.widget<Switch>(find.byType(Switch));
         expect(switchWidget.value, isTrue,
-            reason: 'Switch must reflect enabled state from loadSettings');
+            reason: 'Switch must reflect enabled state from loadSettings',);
       });
 
       testWidgets('Switch reflects disabled state when notifications are OFF', 
@@ -135,7 +135,7 @@ void main() {
         // Assert: Switch is in OFF position
         final switchWidget = tester.widget<Switch>(find.byType(Switch));
         expect(switchWidget.value, isFalse,
-            reason: 'Switch must reflect disabled state from loadSettings');
+            reason: 'Switch must reflect disabled state from loadSettings',);
       });
 
       testWidgets('toggling Switch ON calls scheduleDailyNotification', 
@@ -151,7 +151,7 @@ void main() {
 
         // Assert: scheduleDailyNotification was called
         expect(mockService.scheduleDailyNotificationCalled, isTrue,
-            reason: 'Toggling ON must call scheduleDailyNotification');
+            reason: 'Toggling ON must call scheduleDailyNotification',);
       });
 
       testWidgets('toggling Switch OFF calls cancelNotification', 
@@ -167,7 +167,7 @@ void main() {
 
         // Assert: cancelNotification was called
         expect(mockService.cancelNotificationCalled, isTrue,
-            reason: 'Toggling OFF must call cancelNotification');
+            reason: 'Toggling OFF must call cancelNotification',);
       });
     });
 
@@ -187,7 +187,7 @@ void main() {
 
         // Assert: time is displayed in HH:MM format
         expect(find.textContaining('14:30'), findsWidgets,
-            reason: 'Settings screen must display time in 24-hour HH:MM format');
+            reason: 'Settings screen must display time in 24-hour HH:MM format',);
       });
 
       testWidgets('displays time with leading zeros for single-digit hours', 
@@ -201,7 +201,7 @@ void main() {
 
         // Assert: time shows leading zeros (08:05, not 8:5)
         expect(find.textContaining('08:05'), findsWidgets,
-            reason: 'Time must display with leading zeros (08:05 not 8:5)');
+            reason: 'Time must display with leading zeros (08:05 not 8:5)',);
       });
 
       testWidgets('has a tappable element for changing notification time', 
@@ -217,16 +217,16 @@ void main() {
         // that can be tapped to open time picker
         final timeText = find.textContaining('08:00');
         expect(timeText, findsWidgets,
-            reason: 'Time must be displayed on screen');
+            reason: 'Time must be displayed on screen',);
 
         // The time should be in a tappable container (ListTile, InkWell, etc.)
         final tappable = find.ancestor(
           of: timeText.first,
           matching: find.byWidgetPredicate((w) => 
-              w is ListTile || w is InkWell || w is GestureDetector),
+              w is ListTile || w is InkWell || w is GestureDetector,),
         );
         expect(tappable, findsWidgets,
-            reason: 'Time display must be tappable to open time picker');
+            reason: 'Time display must be tappable to open time picker',);
       });
 
       testWidgets('tapping time opens TimePicker dialog', 
@@ -243,7 +243,7 @@ void main() {
 
         // Assert: TimePicker dialog is shown
         expect(find.byType(TimePickerDialog), findsOneWidget,
-            reason: 'Tapping time must open a TimePickerDialog');
+            reason: 'Tapping time must open a TimePickerDialog',);
       });
 
       testWidgets('confirming new time calls scheduleDailyNotification with new values', 
@@ -268,7 +268,7 @@ void main() {
 
         // Assert: scheduleDailyNotification was called (time changed)
         expect(mockService.scheduleDailyNotificationCalled, isTrue,
-            reason: 'Confirming new time must call scheduleDailyNotification');
+            reason: 'Confirming new time must call scheduleDailyNotification',);
       });
     });
 
@@ -289,9 +289,9 @@ void main() {
         // Assert: defaults are shown without crash
         final switchWidget = tester.widget<Switch>(find.byType(Switch));
         expect(switchWidget.value, isFalse,
-            reason: 'Fresh install must show notifications disabled');
+            reason: 'Fresh install must show notifications disabled',);
         expect(find.textContaining('08:00'), findsWidgets,
-            reason: 'Fresh install must show default time 08:00');
+            reason: 'Fresh install must show default time 08:00',);
       });
 
       testWidgets('enabled state persists (simulated by re-reading from service)', 
@@ -306,9 +306,9 @@ void main() {
         // Assert: persisted state is reflected
         final switchWidget = tester.widget<Switch>(find.byType(Switch));
         expect(switchWidget.value, isTrue,
-            reason: 'Enabled state must persist and be shown on reload');
+            reason: 'Enabled state must persist and be shown on reload',);
         expect(find.textContaining('14:30'), findsWidgets,
-            reason: 'Time 14:30 must persist and be shown on reload');
+            reason: 'Time 14:30 must persist and be shown on reload',);
       });
 
       testWidgets('disabled state persists (simulated by re-reading from service)', 
@@ -323,7 +323,7 @@ void main() {
         // Assert
         final switchWidget = tester.widget<Switch>(find.byType(Switch));
         expect(switchWidget.value, isFalse,
-            reason: 'Disabled state must persist and be shown on reload');
+            reason: 'Disabled state must persist and be shown on reload',);
       });
     });
 
@@ -342,7 +342,7 @@ void main() {
 
         // Assert
         expect(find.textContaining('00:00'), findsWidgets,
-            reason: 'Midnight (00:00) must display correctly');
+            reason: 'Midnight (00:00) must display correctly',);
       });
 
       testWidgets('displays end of day (23:59) correctly', 
@@ -356,7 +356,7 @@ void main() {
 
         // Assert
         expect(find.textContaining('23:59'), findsWidgets,
-            reason: 'End of day (23:59) must display correctly');
+            reason: 'End of day (23:59) must display correctly',);
       });
     });
 
@@ -400,7 +400,7 @@ void main() {
 
         // Assert: screen renders with expected structure
         expect(find.byType(SettingsScreen), findsOneWidget,
-            reason: 'SettingsScreen must render without crash');
+            reason: 'SettingsScreen must render without crash',);
       });
 
       testWidgets('Settings screen has AppBar with Settings title', 
@@ -414,7 +414,7 @@ void main() {
 
         // Assert: AppBar with 'Settings' title
         expect(find.text('Settings'), findsOneWidget,
-            reason: 'Settings screen must have AppBar with Settings title');
+            reason: 'Settings screen must have AppBar with Settings title',);
       });
     });
   });

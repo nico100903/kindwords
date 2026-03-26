@@ -25,14 +25,14 @@ void main() {
       final ids = kAllQuotes.map((q) => q.id).toList();
       final uniqueIds = ids.toSet();
       expect(uniqueIds.length, equals(ids.length),
-          reason: 'Duplicate IDs found: ${ids.where((id) => ids.indexOf(id) != ids.lastIndexOf(id)).toSet()}');
+          reason: 'Duplicate IDs found: ${ids.where((id) => ids.indexOf(id) != ids.lastIndexOf(id)).toSet()}',);
     });
 
     test('All quote IDs match the q### format', () {
       final pattern = RegExp(r'^q\d{3,}$');
       for (final quote in kAllQuotes) {
         expect(pattern.hasMatch(quote.id), true,
-            reason: 'Quote ID ${quote.id} does not match pattern q###');
+            reason: 'Quote ID ${quote.id} does not match pattern q###',);
       }
     });
 
@@ -47,7 +47,7 @@ void main() {
       for (int i = 0; i < kAllQuotes.length; i++) {
         final expectedId = 'q${(i + 1).toString().padLeft(3, '0')}';
         expect(kAllQuotes[i].id, equals(expectedId),
-            reason: 'Quote at index $i has incorrect ID');
+            reason: 'Quote at index $i has incorrect ID',);
       }
     });
 
@@ -55,7 +55,7 @@ void main() {
       for (final quote in kAllQuotes) {
         if (quote.author != null) {
           expect(quote.author!.isNotEmpty, true,
-              reason: 'Quote ${quote.id} has non-null but empty author');
+              reason: 'Quote ${quote.id} has non-null but empty author',);
         }
       }
     });

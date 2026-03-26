@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kindwords/widgets/quote_card.dart';
 import 'package:provider/provider.dart';
+import '../providers/favorites_provider.dart';
 import '../providers/quote_provider.dart';
 
 /// Home screen displaying a quote card and primary CTA button.
@@ -49,6 +50,25 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('KindWords'),
         centerTitle: false,
         elevation: 0,
+        actions: [
+          Consumer2<QuoteProvider, FavoritesProvider>(
+            builder: (context, quoteProvider, favProvider, _) {
+              final quote = quoteProvider.currentQuote;
+              if (!quoteProvider.isInitialized ||
+                  quote == null ||
+                  favProvider.isLoading) {
+                return const SizedBox.shrink();
+              }
+              final isFav = favProvider.isFavorite(quote);
+              return IconButton(
+                icon: Icon(isFav ? Icons.favorite : Icons.favorite_outline),
+                onPressed: () =>
+                    context.read<FavoritesProvider>().toggleFavorite(quote),
+                tooltip: isFav ? 'Remove from favorites' : 'Save to favorites',
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [

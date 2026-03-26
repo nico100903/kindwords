@@ -10,6 +10,7 @@ class QuoteProvider extends ChangeNotifier {
   final QuoteService _quoteService;
   Quote? _currentQuote;
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   QuoteProvider(this._quoteService) {
     _initialize();
@@ -18,12 +19,19 @@ class QuoteProvider extends ChangeNotifier {
   /// The currently displayed quote. May be null before initialization completes.
   Quote? get currentQuote => _currentQuote;
 
-  /// True while an async quote fetch is in progress.
+  /// True while a user-initiated [refreshQuote] is in progress.
+  /// False during initial load — use [isInitialized] to check that state.
   bool get isLoading => _isLoading;
 
-  /// Fire-and-forget initialization — does NOT set isLoading=true synchronously.
+  /// True once the initial quote has been loaded. False on first frame.
+  bool get isInitialized => _isInitialized;
+
+  /// Fire-and-forget initialization. Exposes [isInitialized] = false until
+  /// the first quote is ready, so the UI can suppress actions that require
+  /// a valid quote without interfering with [isLoading]'s user-refresh contract.
   Future<void> _initialize() async {
     _currentQuote = await _quoteService.getRandomQuote();
+    _isInitialized = true;
     notifyListeners();
   }
 

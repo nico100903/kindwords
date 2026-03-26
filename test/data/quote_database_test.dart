@@ -315,7 +315,8 @@ void main() {
       mockDb = MockQuoteDatabase();
     });
 
-    test('seedIfEmpty() accepts v2 Quote with tags, source, timestamps', () async {
+    test('seedIfEmpty() accepts v2 Quote with tags, source, timestamps',
+        () async {
       // Arrange
       when(() => mockDb.seedIfEmpty(any())).thenAnswer((_) async {});
 
@@ -437,12 +438,14 @@ void main() {
         expect(retrieved.author, equals('Author'));
         expect(retrieved.tags, equals(['motivational', 'wisdom']));
         expect(retrieved.source, equals(QuoteSource.seeded));
-        expect(retrieved.createdAt, equals(DateTime.parse('2026-03-27T10:00:00.000Z')));
+        expect(retrieved.createdAt,
+            equals(DateTime.parse('2026-03-27T10:00:00.000Z')));
         expect(retrieved.updatedAt, isNull);
       });
 
       // QG3 (v2): seedIfEmpty writes seeded rows with default v2 values
-      test('seedIfEmpty writes v2 quotes with tags serialized correctly', () async {
+      test('seedIfEmpty writes v2 quotes with tags serialized correctly',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();
@@ -535,7 +538,8 @@ void main() {
         // Assert
         final retrieved = await db.getById('q-v2-test-004');
         expect(retrieved, isNotNull);
-        expect(retrieved!.createdAt, equals(DateTime.parse('2026-03-27T10:30:45.123Z')));
+        expect(retrieved!.createdAt,
+            equals(DateTime.parse('2026-03-27T10:30:45.123Z')));
       });
 
       test('seedIfEmpty writes nullable updatedAt correctly', () async {
@@ -571,7 +575,8 @@ void main() {
         expect(retrievedNull, isNotNull);
         expect(retrievedDate, isNotNull);
         expect(retrievedNull!.updatedAt, isNull);
-        expect(retrievedDate!.updatedAt, equals(DateTime.parse('2026-03-27T15:00:00.000Z')));
+        expect(retrievedDate!.updatedAt,
+            equals(DateTime.parse('2026-03-27T15:00:00.000Z')));
       });
 
       // QG4 (v2): Migration path from v1 schema to v2 preserves existing rows
@@ -579,7 +584,8 @@ void main() {
       // then opening with v2 code to trigger onUpgrade. This is best done
       // as a manual integration test or with sqflite_common_ffi.
       // Here we verify the contract that getAllQuotes() handles v1-style data.
-      test('getAllQuotes() handles quotes that may have been migrated from v1', () async {
+      test('getAllQuotes() handles quotes that may have been migrated from v1',
+          () async {
         // Arrange: create a fresh v2 database and verify it can read
         // quotes that would have default v2 values applied
         final db = QuoteDatabase();
@@ -702,11 +708,14 @@ void main() {
         expect(quote.author, equals('Author'));
         expect(quote.tags, equals(['wisdom', 'focus']));
         expect(quote.source, equals(QuoteSource.userCreated));
-        expect(quote.createdAt, equals(DateTime.parse('2026-03-27T10:00:00.000Z')));
-        expect(quote.updatedAt, equals(DateTime.parse('2026-03-27T11:00:00.000Z')));
+        expect(quote.createdAt,
+            equals(DateTime.parse('2026-03-27T10:00:00.000Z')));
+        expect(quote.updatedAt,
+            equals(DateTime.parse('2026-03-27T11:00:00.000Z')));
       });
 
-      test('getAllQuotes() returns all v2 quotes with correct fields', () async {
+      test('getAllQuotes() returns all v2 quotes with correct fields',
+          () async {
         // Arrange
         final db = QuoteDatabase();
         await db.open();

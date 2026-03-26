@@ -458,7 +458,17 @@ void main() {
 
       final map = quote.toMap();
 
-      expect(map.keys, containsAll(['id', 'text', 'author', 'tags', 'source', 'created_at', 'updated_at']));
+      expect(
+          map.keys,
+          containsAll([
+            'id',
+            'text',
+            'author',
+            'tags',
+            'source',
+            'created_at',
+            'updated_at'
+          ]));
       expect(map.length, equals(7));
     });
   });
@@ -547,7 +557,8 @@ void main() {
 
       final quote = Quote.fromMap(row);
 
-      expect(quote.createdAt, equals(DateTime.parse('2026-03-27T10:30:45.123Z')));
+      expect(
+          quote.createdAt, equals(DateTime.parse('2026-03-27T10:30:45.123Z')));
     });
 
     test('reconstructs non-null updatedAt from ISO-8601 string', () {
@@ -563,7 +574,8 @@ void main() {
 
       final quote = Quote.fromMap(row);
 
-      expect(quote.updatedAt, equals(DateTime.parse('2026-03-27T15:45:30.000Z')));
+      expect(
+          quote.updatedAt, equals(DateTime.parse('2026-03-27T15:45:30.000Z')));
     });
 
     test('reconstructs null updatedAt correctly', () {
@@ -871,7 +883,8 @@ void main() {
       );
 
       expect(a, equals(b),
-          reason: 'equality is id-only; different tags must not affect equality');
+          reason:
+              'equality is id-only; different tags must not affect equality');
     });
 
     test('quotes with same id but different source are equal', () {
@@ -895,7 +908,8 @@ void main() {
       );
 
       expect(a, equals(b),
-          reason: 'equality is id-only; different source must not affect equality');
+          reason:
+              'equality is id-only; different source must not affect equality');
     });
 
     test('quotes with same id but different createdAt are equal', () {
@@ -914,12 +928,14 @@ void main() {
         author: 'Author',
         tags: [],
         source: QuoteSource.seeded,
-        createdAt: DateTime.parse('2026-03-01T00:00:00.000Z'), // different createdAt
+        createdAt:
+            DateTime.parse('2026-03-01T00:00:00.000Z'), // different createdAt
         updatedAt: null,
       );
 
       expect(a, equals(b),
-          reason: 'equality is id-only; different createdAt must not affect equality');
+          reason:
+              'equality is id-only; different createdAt must not affect equality');
     });
 
     test('quotes with same id but different updatedAt are equal', () {
@@ -939,14 +955,17 @@ void main() {
         tags: [],
         source: QuoteSource.seeded,
         createdAt: DateTime.parse('2026-03-27T10:00:00.000Z'),
-        updatedAt: DateTime.parse('2026-03-27T12:00:00.000Z'), // different updatedAt
+        updatedAt:
+            DateTime.parse('2026-03-27T12:00:00.000Z'), // different updatedAt
       );
 
       expect(a, equals(b),
-          reason: 'equality is id-only; different updatedAt must not affect equality');
+          reason:
+              'equality is id-only; different updatedAt must not affect equality');
     });
 
-    test('quotes with different ids are not equal regardless of other fields', () {
+    test('quotes with different ids are not equal regardless of other fields',
+        () {
       final a = Quote(
         id: 'q-eq-005a',
         text: 'Identical content',

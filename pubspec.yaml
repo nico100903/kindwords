@@ -23,6 +23,12 @@ dependencies:
   # Favorites and settings persistence
   shared_preferences: ^2.3.2
 
+  # SQLite database
+  sqflite: ^2.3.3
+
+  # Path provider utility
+  path: ^1.9.0
+
   # Default Flutter icon package
   cupertino_icons: ^1.0.2
 
@@ -30,6 +36,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  mocktail: ^0.3.0
 
 flutter:
   uses-material-design: true

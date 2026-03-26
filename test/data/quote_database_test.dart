@@ -244,7 +244,7 @@ void main() {
 
         expect(result, isNotNull);
         expect(result!.author, isNull,
-            reason: 'author TEXT column is nullable — must round-trip as null');
+            reason: 'author TEXT column is nullable — must round-trip as null',);
       });
     },
   );

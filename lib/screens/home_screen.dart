@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindwords/widgets/quote_card.dart';
 import 'package:provider/provider.dart';
 import '../providers/quote_provider.dart';
 
@@ -76,41 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: child,
                           );
                         },
-                        child: Card(
-                          key: ValueKey(quote.id),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(32.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  quote.text,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontStyle: FontStyle.italic,
-                                    height: 1.4,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                if (quote.author != null) ...[
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    '— ${quote.author}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
+                        child: QuoteCard(
+                          key: ValueKey<String>(quote.id),
+                          quote: quote,
                         ),
                       ),
                     ),

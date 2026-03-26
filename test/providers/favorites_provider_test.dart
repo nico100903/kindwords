@@ -109,7 +109,8 @@ void main() {
       expect(
         provider.favorites.length,
         equals(1),
-        reason: 'favorites must contain exactly one entry after one addFavorite',
+        reason:
+            'favorites must contain exactly one entry after one addFavorite',
       );
     });
 

@@ -50,14 +50,15 @@ void main() {
       expect(
         [_q1.id, _q2.id, _q3.id],
         contains(result.id),
-        reason: 'getRandomQuote() must return a quote from repository.getAllQuotes()',
+        reason:
+            'getRandomQuote() must return a quote from repository.getAllQuotes()',
       );
     });
 
-    test('calls repository.getAllQuotes() exactly once per invocation', () async {
+    test('calls repository.getAllQuotes() exactly once per invocation',
+        () async {
       // Arrange
-      when(() => mockRepo.getAllQuotes())
-          .thenAnswer((_) async => [_q1, _q2]);
+      when(() => mockRepo.getAllQuotes()).thenAnswer((_) async => [_q1, _q2]);
 
       // Act
       await service.getRandomQuote();
@@ -68,8 +69,7 @@ void main() {
 
     test('no-repeat guarantee: never returns quote with currentId', () async {
       // Arrange: repo returns two quotes
-      when(() => mockRepo.getAllQuotes())
-          .thenAnswer((_) async => [_q1, _q2]);
+      when(() => mockRepo.getAllQuotes()).thenAnswer((_) async => [_q1, _q2]);
 
       // Act & Assert: run 20 times — with only 2 quotes, the result must always
       // be the other quote when currentId is given.
@@ -119,8 +119,7 @@ void main() {
     test('returns null when repository.getById() returns null (not found)',
         () async {
       // Arrange: repo signals quote not found
-      when(() => mockRepo.getById('nonexistent'))
-          .thenAnswer((_) async => null);
+      when(() => mockRepo.getById('nonexistent')).thenAnswer((_) async => null);
 
       // Act
       final result = await service.getById('nonexistent');

@@ -38,8 +38,7 @@ void main() {
     // during construction in tests that only care about refreshQuote().
     when(() => mockService.getRandomQuote(currentId: any(named: 'currentId')))
         .thenAnswer((_) async => _quoteA);
-    when(() => mockService.getRandomQuote())
-        .thenAnswer((_) async => _quoteA);
+    when(() => mockService.getRandomQuote()).thenAnswer((_) async => _quoteA);
   });
 
   // -------------------------------------------------------------------------
@@ -134,8 +133,7 @@ void main() {
       // Stub refresh to return _quoteB
       when(() => mockService.getRandomQuote(currentId: any(named: 'currentId')))
           .thenAnswer((_) async => _quoteB);
-      when(() => mockService.getRandomQuote())
-          .thenAnswer((_) async => _quoteB);
+      when(() => mockService.getRandomQuote()).thenAnswer((_) async => _quoteB);
 
       // Act
       await provider.refreshQuote();
@@ -154,8 +152,7 @@ void main() {
 
       when(() => mockService.getRandomQuote(currentId: any(named: 'currentId')))
           .thenAnswer((_) async => _quoteB);
-      when(() => mockService.getRandomQuote())
-          .thenAnswer((_) async => _quoteB);
+      when(() => mockService.getRandomQuote()).thenAnswer((_) async => _quoteB);
 
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);

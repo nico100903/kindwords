@@ -42,7 +42,8 @@ void main() {
     // Passing a QuoteRepositoryBase here causes a compile-time type error
     // until the coder changes the constructor to accept QuoteRepositoryBase.
     // -----------------------------------------------------------------------
-    service = FavoritesService(mockRepo); // COMPILE ERROR until R7 is implemented
+    service =
+        FavoritesService(mockRepo); // COMPILE ERROR until R7 is implemented
   });
 
   // -------------------------------------------------------------------------

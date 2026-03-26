@@ -61,8 +61,7 @@ class _FakeQuoteRepository implements QuoteRepositoryBase {
   Future<List<Quote>> getAllQuotes() async => const [_quote];
 
   @override
-  Future<Quote?> getById(String id) async =>
-      id == _quote.id ? _quote : null;
+  Future<Quote?> getById(String id) async => id == _quote.id ? _quote : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -102,7 +101,8 @@ void main() {
       expect(settings.minute, equals(0));
     });
 
-    test('returns saved values when prefs contain persisted settings', () async {
+    test('returns saved values when prefs contain persisted settings',
+        () async {
       // Arrange: pre-load prefs with a saved schedule
       SharedPreferences.setMockInitialValues({
         'notification_enabled': true,
@@ -147,8 +147,7 @@ void main() {
   // -------------------------------------------------------------------------
 
   group('NotificationService.rescheduleFromSavedSettings()', () {
-    test(
-        'completes without exception and leaves prefs unchanged when disabled',
+    test('completes without exception and leaves prefs unchanged when disabled',
         () async {
       // Arrange: notifications are disabled in prefs
       SharedPreferences.setMockInitialValues({

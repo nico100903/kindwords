@@ -243,8 +243,11 @@ void main() {
         final result = await db.getById('q050');
 
         expect(result, isNotNull);
-        expect(result!.author, isNull,
-            reason: 'author TEXT column is nullable — must round-trip as null',);
+        expect(
+          result!.author,
+          isNull,
+          reason: 'author TEXT column is nullable — must round-trip as null',
+        );
       });
     },
   );

@@ -272,7 +272,8 @@ void main() {
       expect(
         find.byIcon(Icons.delete_outline),
         findsNWidgets(3),
-        reason: 'Every ListTile must have an IconButton with Icons.delete_outline '
+        reason:
+            'Every ListTile must have an IconButton with Icons.delete_outline '
             'as its trailing widget',
       );
     },
@@ -376,7 +377,8 @@ void main() {
       expect(
         find.byType(ListView),
         findsOneWidget,
-        reason: 'Exactly one ListView must be present when favorites are loaded',
+        reason:
+            'Exactly one ListView must be present when favorites are loaded',
       );
 
       // The number of rendered ListTiles must equal the number of favorites

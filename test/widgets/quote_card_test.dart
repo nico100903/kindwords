@@ -67,7 +67,8 @@ void main() {
     // -------------------------------------------------------------------------
     // Test 3 — hides author line entirely when author is null
     // -------------------------------------------------------------------------
-    testWidgets('hides author when author is null', (WidgetTester tester) async {
+    testWidgets('hides author when author is null',
+        (WidgetTester tester) async {
       const quote = Quote(id: 'q003', text: 'Anonymous quote', author: null);
 
       await tester.pumpWidget(

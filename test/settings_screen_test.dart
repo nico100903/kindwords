@@ -19,8 +19,11 @@ class MockNotificationService implements NotificationServiceBase {
       (enabled: false, hour: 8, minute: 0);
 
   /// Sets the mock settings that loadSettings() will return.
-  void setMockSettings(
-      {required bool enabled, required int hour, required int minute}) {
+  void setMockSettings({
+    required bool enabled,
+    required int hour,
+    required int minute,
+  }) {
     _settings = (enabled: enabled, hour: hour, minute: minute);
   }
 

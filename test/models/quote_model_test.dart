@@ -37,7 +37,7 @@ void main() {
       expect(map['id'], equals('q2'));
       expect(map['text'], equals('Hi'));
       expect(map.containsKey('author'), isTrue,
-          reason: "sqflite nullable column requires key present, value null");
+          reason: "sqflite nullable column requires key present, value null",);
       expect(map['author'], isNull);
       expect(map.length, equals(3));
     });
@@ -61,7 +61,7 @@ void main() {
       final row = <String, Object?>{
         'id': 'q1',
         'text': 'Hello',
-        'author': 'Alice'
+        'author': 'Alice',
       };
 
       final quote = Quote.fromMap(row);
@@ -85,7 +85,7 @@ void main() {
       final row = <String, Object?>{
         'id': 'q4',
         'text': 'Immutable',
-        'author': 'Dev'
+        'author': 'Dev',
       };
 
       final quote = Quote.fromMap(row);
@@ -105,7 +105,7 @@ void main() {
       final roundTripped = Quote.fromMap(original.toMap());
 
       expect(roundTripped, equals(original),
-          reason: 'Quote equality is id-based; round-trip must not change id');
+          reason: 'Quote equality is id-based; round-trip must not change id',);
     });
 
     test('round-trip preserves equality for quote with null author', () {

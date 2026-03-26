@@ -92,6 +92,13 @@ Phase detection table: see `sdlc.reference[sdlc-orchestrator]` — follow it exa
 
 **Rule:** Any Build dispatch that uses a generic coder or tech-lead in the global table routes to the Flutter-specific agents in this table. All other phases follow the global reference exactly.
 
+### Changelog Policy (KindWords-specific)
+
+- Every user-facing `feat`, `fix`, or UX-visible `refactor` task updates `CHANGELOG.md` under `## [Unreleased]` in the same implementation commit.
+- Internal-only work (`test`, `chore`, vault bookkeeping, formatting-only changes) does not touch `CHANGELOG.md`.
+- Release execution converts `## [Unreleased]` into a versioned section (`## [1.0.1] - YYYY-MM-DD`), creates/pushes the git tag, builds the release APK, and creates the GitHub Release.
+- The orchestrator must include changelog expectations in coder and tech-lead dispatches for user-facing tasks.
+
 ---
 
 ## Mode: REFACTOR_WAVE
@@ -160,6 +167,7 @@ Dispatch `sdlc-flutter-coder[anthropic](claude-sonnet-4-6)` with:
 - Technical constraints from the wave definition
 - flutter-standards conventions relevant to this wave
 - Explicit constraint: never modify test files
+- If the task is user-facing: explicit requirement to append one release-note-ready bullet to `CHANGELOG.md` under `## [Unreleased]`
 
 Wait for coder to return. Verify Layer 2 CRITIC:
 1. `git log --oneline -1` — commit exists
@@ -239,7 +247,8 @@ When dispatching `sdlc-flutter-coder` or `sdlc-flutter-tech-lead`, **always incl
 - ALWAYS load `delegation.workflow[orchestrator]` before every `task()` call.
 - ALWAYS use the fvm flutter path: `/home/cmark/fvm/versions/stable/bin/flutter`
 - ALWAYS verify each commit with `git log --oneline -1` before continuing.
+- ALWAYS require `CHANGELOG.md` updates for user-facing `feat`, `fix`, or UX-visible `refactor` tasks.
 
 <recall>
-KindWords SDLC orchestrator: two modes — LIFECYCLE (follow global sdlc.reference, override Build routing to sdlc-flutter-coder + sdlc-flutter-tech-lead) and REFACTOR_WAVE (execute one wave from vault/ai/docs/refactor-plan.md via BDD loop). LIFECYCLE routing table: Build-enrich → sdlc-flutter-tech-lead; Build-implement → sdlc-flutter-coder; Build-review → sdlc-flutter-tech-lead (mode: review). REFACTOR_WAVE sequence: load wave → preflight → QA (failing tests) → coder (make green) → optional tech-lead review → integrate gate (flutter analyze + flutter test + dart format) → advance + log. Flutter binary: /home/cmark/fvm/versions/stable/bin/flutter. Mock library: mocktail. Never skip QA. Never use generic coder/tech-lead. Integrate gate is a hard stop — no exceptions.
+KindWords SDLC orchestrator: two modes — LIFECYCLE (follow global sdlc.reference, override Build routing to sdlc-flutter-coder + sdlc-flutter-tech-lead) and REFACTOR_WAVE (execute one wave from vault/ai/docs/refactor-plan.md via BDD loop). LIFECYCLE routing table: Build-enrich → sdlc-flutter-tech-lead; Build-implement → sdlc-flutter-coder; Build-review → sdlc-flutter-tech-lead (mode: review). REFACTOR_WAVE sequence: load wave → preflight → QA (failing tests) → coder (make green) → optional tech-lead review → integrate gate (flutter analyze + flutter test + dart format) → advance + log. Flutter binary: /home/cmark/fvm/versions/stable/bin/flutter. Mock library: mocktail. Never skip QA. Never use generic coder/tech-lead. Integrate gate is a hard stop — no exceptions. User-facing feat/fix/refactor tasks must update `CHANGELOG.md` under `## [Unreleased]`; release flow converts Unreleased into a versioned section, tags, builds APK, and creates GitHub Release.
 </recall>

@@ -552,6 +552,53 @@ Text(quote.text.toUpperCase())
 
 ---
 
+## 11. Changelog And Release Discipline
+
+### CHANGELOG.md policy
+
+`CHANGELOG.md` is a first-class product artifact, not release-day cleanup.
+
+**Do:** For every user-facing `feat`, `fix`, or UX-visible `refactor`, append one concise entry under `## [Unreleased]` in `CHANGELOG.md` as part of the same implementation commit.
+
+**Avoid:** Logging pure test-only, formatting-only, vault-only, or agent-ecosystem changes in the changelog — they create noise for users.
+
+### Entry format
+
+Use Keep a Changelog sections:
+
+```md
+## [Unreleased]
+
+### Added
+- User can save the current quote from the home screen with a heart icon
+
+### Changed
+- Quote loading now reads from the local SQLite catalog instead of the embedded list
+
+### Fixed
+- Daily notifications fail safely when exact alarm permission is denied
+```
+
+Rules:
+- Write for a user or release reviewer, not for the commit log
+- One task usually contributes 1 bullet, not a paragraph
+- Prefer visible outcomes over implementation mechanics
+- If a task has no user-visible impact, omit the entry
+
+### Release flow
+
+At release time:
+1. Move `## [Unreleased]` entries into a new version section: `## [1.1.0] - YYYY-MM-DD`
+2. Ensure `pubspec.yaml` version matches the intended release
+3. Build release artifact: `flutter build apk --release`
+4. Create annotated git tag: `v1.1.0`
+5. Create GitHub Release and attach `app-release.apk`
+
+**Do:** Treat `CHANGELOG.md`, git tag, and GitHub Release as one release unit.
+**Avoid:** Creating a tag without updating the changelog — version history becomes non-auditable.
+
+---
+
 ## Quick Reference — Quality Gate Checklist
 
 Before marking any task done:
@@ -560,6 +607,7 @@ Before marking any task done:
 [ ] flutter analyze          — zero issues
 [ ] flutter test             — zero failures
 [ ] dart format lib/ test/   — no format diff
+[ ] CHANGELOG.md updated     — required for user-facing feat/fix/refactor
 [ ] git log --oneline -1     — commit exists
 [ ] git diff HEAD~1 --stat   — only expected files changed
 ```

@@ -14,7 +14,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q002',
-    text: 'You are braver than you believe, stronger than you seem, and smarter than you think.',
+    text:
+        'You are braver than you believe, stronger than you seem, and smarter than you think.',
     author: 'A.A. Milne',
   ),
   Quote(
@@ -44,12 +45,14 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q008',
-    text: 'Success is not final, failure is not fatal: it is the courage to continue that counts.',
+    text:
+        'Success is not final, failure is not fatal: it is the courage to continue that counts.',
     author: 'Winston Churchill',
   ),
   Quote(
     id: 'q009',
-    text: 'You have been assigned this mountain so you can show others it can be moved.',
+    text:
+        'You have been assigned this mountain so you can show others it can be moved.',
     author: null,
   ),
   Quote(
@@ -59,7 +62,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q011',
-    text: 'The best time to plant a tree was 20 years ago. The second best time is now.',
+    text:
+        'The best time to plant a tree was 20 years ago. The second best time is now.',
     author: 'Chinese Proverb',
   ),
   Quote(
@@ -74,17 +78,20 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q014',
-    text: 'Believe in yourself. You are braver than you think, more talented than you know, and capable of more than you imagine.',
+    text:
+        'Believe in yourself. You are braver than you think, more talented than you know, and capable of more than you imagine.',
     author: null,
   ),
   Quote(
     id: 'q015',
-    text: 'I learned that courage was not the absence of fear, but the triumph over it.',
+    text:
+        'I learned that courage was not the absence of fear, but the triumph over it.',
     author: 'Nelson Mandela',
   ),
   Quote(
     id: 'q016',
-    text: 'You don\'t have to see the whole staircase, just take the first step.',
+    text:
+        'You don\'t have to see the whole staircase, just take the first step.',
     author: 'Martin Luther King Jr.',
   ),
   Quote(
@@ -114,7 +121,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q022',
-    text: 'Excellence is not a destination; it is a continuous journey that never ends.',
+    text:
+        'Excellence is not a destination; it is a continuous journey that never ends.',
     author: null,
   ),
   Quote(
@@ -159,7 +167,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q031',
-    text: 'In the end, we will remember not the words of our enemies, but the silence of our friends.',
+    text:
+        'In the end, we will remember not the words of our enemies, but the silence of our friends.',
     author: 'Martin Luther King Jr.',
   ),
   Quote(
@@ -169,7 +178,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q033',
-    text: 'The future belongs to those who believe in the beauty of their dreams.',
+    text:
+        'The future belongs to those who believe in the beauty of their dreams.',
     author: 'Eleanor Roosevelt',
   ),
   Quote(
@@ -179,7 +189,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q035',
-    text: 'You are enough. You are so enough. It\'s unbelievable how enough you are.',
+    text:
+        'You are enough. You are so enough. It\'s unbelievable how enough you are.',
     author: null,
   ),
   Quote(
@@ -204,12 +215,14 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q040',
-    text: 'Challenges are what make life interesting; overcoming them is what makes life meaningful.',
+    text:
+        'Challenges are what make life interesting; overcoming them is what makes life meaningful.',
     author: null,
   ),
   Quote(
     id: 'q041',
-    text: 'Success usually comes to those who are too busy to be looking for it.',
+    text:
+        'Success usually comes to those who are too busy to be looking for it.',
     author: 'Henry David Thoreau',
   ),
   Quote(
@@ -224,17 +237,20 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q044',
-    text: 'The road to success and the road to failure are almost exactly the same.',
+    text:
+        'The road to success and the road to failure are almost exactly the same.',
     author: 'Colin R. Davis',
   ),
   Quote(
     id: 'q045',
-    text: 'Success is liking yourself, liking what you do, and liking how you do it.',
+    text:
+        'Success is liking yourself, liking what you do, and liking how you do it.',
     author: null,
   ),
   Quote(
     id: 'q046',
-    text: 'The only person who can truly defeat you is yourself, and only then if you let them.',
+    text:
+        'The only person who can truly defeat you is yourself, and only then if you let them.',
     author: null,
   ),
   Quote(
@@ -249,27 +265,32 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q049',
-    text: 'Be humble enough to know you\'re not above anyone, wise enough to know you\'re not below anyone.',
+    text:
+        'Be humble enough to know you\'re not above anyone, wise enough to know you\'re not below anyone.',
     author: null,
   ),
   Quote(
     id: 'q050',
-    text: 'Your potential is endless. Your excuses are temporary. Choose to grow.',
+    text:
+        'Your potential is endless. Your excuses are temporary. Choose to grow.',
     author: null,
   ),
   Quote(
     id: 'q051',
-    text: 'The only limit to our realization of tomorrow is our doubts of today.',
+    text:
+        'The only limit to our realization of tomorrow is our doubts of today.',
     author: 'Franklin D. Roosevelt',
   ),
   Quote(
     id: 'q052',
-    text: 'You don\'t have to be great to start, but you have to start to be great.',
+    text:
+        'You don\'t have to be great to start, but you have to start to be great.',
     author: 'Zig Ziglar',
   ),
   Quote(
     id: 'q053',
-    text: 'What lies behind us and what lies before us are tiny matters compared to what lies within us.',
+    text:
+        'What lies behind us and what lies before us are tiny matters compared to what lies within us.',
     author: 'Ralph Waldo Emerson',
   ),
   Quote(
@@ -284,12 +305,14 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q056',
-    text: 'The mountain you are trying to climb always looks taller from the bottom.',
+    text:
+        'The mountain you are trying to climb always looks taller from the bottom.',
     author: null,
   ),
   Quote(
     id: 'q057',
-    text: 'Embrace the struggle and you\'ll embrace the glory that comes with it.',
+    text:
+        'Embrace the struggle and you\'ll embrace the glory that comes with it.',
     author: null,
   ),
   Quote(
@@ -304,7 +327,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q060',
-    text: 'Success is the result of preparation, hard work, and learning from failure.',
+    text:
+        'Success is the result of preparation, hard work, and learning from failure.',
     author: 'Colin Powell',
   ),
   Quote(
@@ -369,7 +393,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q073',
-    text: 'Your life does not have to match your mother\'s, your father\'s, or anyone else\'s. This is your story.',
+    text:
+        'Your life does not have to match your mother\'s, your father\'s, or anyone else\'s. This is your story.',
     author: null,
   ),
   Quote(
@@ -379,7 +404,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q075',
-    text: 'You are braver than you believe, stronger than you seem, and smarter than you think.',
+    text:
+        'You are braver than you believe, stronger than you seem, and smarter than you think.',
     author: 'A.A. Milne',
   ),
   Quote(
@@ -394,7 +420,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q078',
-    text: 'Life is too short to waste it on people and things that don\'t deserve your energy.',
+    text:
+        'Life is too short to waste it on people and things that don\'t deserve your energy.',
     author: null,
   ),
   Quote(
@@ -404,7 +431,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q080',
-    text: 'The first step towards change is awareness. The second step is acceptance. The third step is action.',
+    text:
+        'The first step towards change is awareness. The second step is acceptance. The third step is action.',
     author: null,
   ),
   Quote(
@@ -439,12 +467,14 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q087',
-    text: 'You don\'t have to know all the answers. You just have to keep asking the questions.',
+    text:
+        'You don\'t have to know all the answers. You just have to keep asking the questions.',
     author: null,
   ),
   Quote(
     id: 'q088',
-    text: 'Your value doesn\'t decrease based on someone\'s inability to see your worth.',
+    text:
+        'Your value doesn\'t decrease based on someone\'s inability to see your worth.',
     author: null,
   ),
   Quote(
@@ -484,17 +514,20 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q096',
-    text: 'Success is not final, failure is not fatal: it is the courage to continue that counts.',
+    text:
+        'Success is not final, failure is not fatal: it is the courage to continue that counts.',
     author: 'Winston Churchill',
   ),
   Quote(
     id: 'q097',
-    text: 'The most powerful weapon is the human heart full of courage and conviction.',
+    text:
+        'The most powerful weapon is the human heart full of courage and conviction.',
     author: null,
   ),
   Quote(
     id: 'q098',
-    text: 'Never give up on something that you can\'t go a day without thinking about.',
+    text:
+        'Never give up on something that you can\'t go a day without thinking about.',
     author: null,
   ),
   Quote(
@@ -504,7 +537,8 @@ const List<Quote> kAllQuotes = [
   ),
   Quote(
     id: 'q100',
-    text: 'Your journey may not have a clear destination, but every step forward counts.',
+    text:
+        'Your journey may not have a clear destination, but every step forward counts.',
     author: null,
   ),
   Quote(

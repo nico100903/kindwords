@@ -44,13 +44,20 @@ void main() {
 
         // Act: find the ElevatedButton
         final elevatedButton = find.byType(ElevatedButton);
-        expect(elevatedButton, findsOneWidget,
-            reason: 'Home screen must have an ElevatedButton for New Quote',);
+        expect(
+          elevatedButton,
+          findsOneWidget,
+          reason: 'Home screen must have an ElevatedButton for New Quote',
+        );
 
         // Assert: button has non-null onPressed (enabled)
         final button = tester.widget<ElevatedButton>(elevatedButton);
-        expect(button.onPressed, isNotNull,
-            reason: 'New Quote button must be enabled (onPressed should not be null)',);
+        expect(
+          button.onPressed,
+          isNotNull,
+          reason:
+              'New Quote button must be enabled (onPressed should not be null)',
+        );
       });
 
       testWidgets('tapping New Quote button changes the displayed quote',
@@ -70,11 +77,15 @@ void main() {
 
         // Assert: quote has changed
         final newQuoteId = quoteProvider.currentQuote.id;
-        expect(newQuoteId, isNot(equals(initialQuoteId)),
-            reason: 'Tapping New Quote must change the quote to a different one',);
+        expect(
+          newQuoteId,
+          isNot(equals(initialQuoteId)),
+          reason: 'Tapping New Quote must change the quote to a different one',
+        );
       });
 
-      testWidgets('tapping New Quote multiple times produces different quotes each time',
+      testWidgets(
+          'tapping New Quote multiple times produces different quotes each time',
           (WidgetTester tester) async {
         // Arrange
         await tester.pumpWidget(_createTestHomeApp());
@@ -88,8 +99,11 @@ void main() {
         for (int i = 0; i < 5; i++) {
           final currentId = quoteProvider.currentQuote.id;
           if (previousId != null) {
-            expect(currentId, isNot(equals(previousId)),
-                reason: 'Tap $i: consecutive quotes must differ',);
+            expect(
+              currentId,
+              isNot(equals(previousId)),
+              reason: 'Tap $i: consecutive quotes must differ',
+            );
           }
           previousId = currentId;
           await tester.tap(button);
@@ -110,8 +124,12 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert: AnimatedSwitcher wraps the quote content
-        expect(find.byType(AnimatedSwitcher), findsOneWidget,
-            reason: 'Quote card must be wrapped in AnimatedSwitcher for transitions',);
+        expect(
+          find.byType(AnimatedSwitcher),
+          findsOneWidget,
+          reason:
+              'Quote card must be wrapped in AnimatedSwitcher for transitions',
+        );
       });
 
       testWidgets('AnimatedSwitcher has fade or slide transition',
@@ -129,8 +147,11 @@ void main() {
         // Note: If transitionBuilder is null, AnimatedSwitcher uses default fade
         // Either is acceptable for this AC - we just verify AnimatedSwitcher exists
         // and has a reasonable duration
-        expect(animatedSwitcher.duration.inMilliseconds, lessThanOrEqualTo(300),
-            reason: 'Transition must complete in <= 300ms for instant feel',);
+        expect(
+          animatedSwitcher.duration.inMilliseconds,
+          lessThanOrEqualTo(300),
+          reason: 'Transition must complete in <= 300ms for instant feel',
+        );
       });
 
       testWidgets('quote card has ValueKey based on quote id',
@@ -145,38 +166,52 @@ void main() {
           matching: find.byType(Card),
         );
 
-        expect(cardFinder, findsOneWidget,
-            reason: 'Card must be inside AnimatedSwitcher for key-based transitions',);
+        expect(
+          cardFinder,
+          findsOneWidget,
+          reason:
+              'Card must be inside AnimatedSwitcher for key-based transitions',
+        );
 
         // The Card widget should have a key for AnimatedSwitcher to detect changes
         final card = tester.widget<Card>(cardFinder);
-        expect(card.key, isNotNull,
-            reason: 'Card must have a ValueKey for AnimatedSwitcher to detect quote changes',);
-        expect(card.key, isA<ValueKey<String>>(),
-            reason: 'Card key must be ValueKey<String> based on quote.id',);
+        expect(
+          card.key,
+          isNotNull,
+          reason:
+              'Card must have a ValueKey for AnimatedSwitcher to detect quote changes',
+        );
+        expect(
+          card.key,
+          isA<ValueKey<String>>(),
+          reason: 'Card key must be ValueKey<String> based on quote.id',
+        );
       });
 
-       testWidgets('tapping New Quote triggers animation (transition runs)',
-           (WidgetTester tester) async {
-         // Arrange
-         await tester.pumpWidget(_createTestHomeApp());
-         await tester.pumpAndSettle();
+      testWidgets('tapping New Quote triggers animation (transition runs)',
+          (WidgetTester tester) async {
+        // Arrange
+        await tester.pumpWidget(_createTestHomeApp());
+        await tester.pumpAndSettle();
 
-         // Act: tap the New Quote button
-         await tester.tap(find.byType(ElevatedButton));
-         
-         // Assert: pump (not pumpAndSettle) to capture mid-animation state
-         // Animation should be in progress
-         await tester.pump(const Duration(milliseconds: 50));
-         
-         // After tapping, the animation should start - verify by pumping
-         // through animation duration and confirming it settles
-         await tester.pumpAndSettle(const Duration(milliseconds: 500));
-         
-         // If we got here without errors, animation completed successfully
-         expect(find.byType(AnimatedSwitcher), findsOneWidget,
-             reason: 'AnimatedSwitcher must handle the transition',);
-       });
+        // Act: tap the New Quote button
+        await tester.tap(find.byType(ElevatedButton));
+
+        // Assert: pump (not pumpAndSettle) to capture mid-animation state
+        // Animation should be in progress
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // After tapping, the animation should start - verify by pumping
+        // through animation duration and confirming it settles
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+
+        // If we got here without errors, animation completed successfully
+        expect(
+          find.byType(AnimatedSwitcher),
+          findsOneWidget,
+          reason: 'AnimatedSwitcher must handle the transition',
+        );
+      });
     });
 
     // -------------------------------------------------------------------------
@@ -198,8 +233,11 @@ void main() {
 
         // Assert: quote changed using only local data
         final newQuote = quoteProvider.currentQuote;
-        expect(newQuote.id, isNot(equals(initialQuote.id)),
-            reason: 'Quote refresh must work offline using local data only',);
+        expect(
+          newQuote.id,
+          isNot(equals(initialQuote.id)),
+          reason: 'Quote refresh must work offline using local data only',
+        );
       });
     });
 
@@ -227,8 +265,11 @@ void main() {
 
         // Assert: no consecutive duplicates (even with rapid tapping)
         for (int i = 1; i < ids.length; i++) {
-          expect(ids[i], isNot(equals(ids[i - 1])),
-              reason: 'Rapid tap $i: consecutive quotes must still differ',);
+          expect(
+            ids[i],
+            isNot(equals(ids[i - 1])),
+            reason: 'Rapid tap $i: consecutive quotes must still differ',
+          );
         }
       });
     });

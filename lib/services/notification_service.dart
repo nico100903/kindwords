@@ -149,9 +149,8 @@ class NotificationService implements NotificationServiceBase {
       importance: Importance.defaultImportance,
     );
 
-    final androidPlugin =
-        _plugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.createNotificationChannel(channel);
   }
 }

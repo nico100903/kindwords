@@ -23,5 +23,6 @@ class Quote {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'Quote(id: $id, author: $author, text: ${text.substring(0, text.length.clamp(0, 40))}...)';
+  String toString() =>
+      'Quote(id: $id, author: $author, text: ${text.substring(0, text.length.clamp(0, 40))}...)';
 }

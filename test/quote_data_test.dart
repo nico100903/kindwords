@@ -24,15 +24,22 @@ void main() {
     test('All quote IDs are unique', () {
       final ids = kAllQuotes.map((q) => q.id).toList();
       final uniqueIds = ids.toSet();
-      expect(uniqueIds.length, equals(ids.length),
-          reason: 'Duplicate IDs found: ${ids.where((id) => ids.indexOf(id) != ids.lastIndexOf(id)).toSet()}',);
+      expect(
+        uniqueIds.length,
+        equals(ids.length),
+        reason:
+            'Duplicate IDs found: ${ids.where((id) => ids.indexOf(id) != ids.lastIndexOf(id)).toSet()}',
+      );
     });
 
     test('All quote IDs match the q### format', () {
       final pattern = RegExp(r'^q\d{3,}$');
       for (final quote in kAllQuotes) {
-        expect(pattern.hasMatch(quote.id), true,
-            reason: 'Quote ID ${quote.id} does not match pattern q###',);
+        expect(
+          pattern.hasMatch(quote.id),
+          true,
+          reason: 'Quote ID ${quote.id} does not match pattern q###',
+        );
       }
     });
 
@@ -46,16 +53,22 @@ void main() {
     test('Quote IDs are sequentially numbered from q001 to q110', () {
       for (int i = 0; i < kAllQuotes.length; i++) {
         final expectedId = 'q${(i + 1).toString().padLeft(3, '0')}';
-        expect(kAllQuotes[i].id, equals(expectedId),
-            reason: 'Quote at index $i has incorrect ID',);
+        expect(
+          kAllQuotes[i].id,
+          equals(expectedId),
+          reason: 'Quote at index $i has incorrect ID',
+        );
       }
     });
 
     test('Author field can be null or non-empty string', () {
       for (final quote in kAllQuotes) {
         if (quote.author != null) {
-          expect(quote.author!.isNotEmpty, true,
-              reason: 'Quote ${quote.id} has non-null but empty author',);
+          expect(
+            quote.author!.isNotEmpty,
+            true,
+            reason: 'Quote ${quote.id} has non-null but empty author',
+          );
         }
       }
     });

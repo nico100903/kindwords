@@ -34,7 +34,8 @@ void main() {
     expect(find.text('KindWords'), findsOneWidget);
   });
 
-  testWidgets('Home screen has bottom navigation bar', (WidgetTester tester) async {
+  testWidgets('Home screen has bottom navigation bar',
+      (WidgetTester tester) async {
     await tester.pumpWidget(_createTestApp());
 
     // Verify bottom navigation bar is present with Home/Favorites/Settings
@@ -65,7 +66,7 @@ void main() {
       // Verify the provider has the expected interface methods and properties
       expect(favoritesProvider.favorites, isNotNull);
       expect(favoritesProvider.isLoading, isTrue); // Starts loading
-      
+
       // Verify methods exist and are callable
       expect(favoritesProvider.isFavorite, isNotNull);
       expect(favoritesProvider.toggleFavorite, isNotNull);

@@ -51,9 +51,8 @@ class FavoritesScreen extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: quote.author != null
-                    ? Text('— ${quote.author}')
-                    : null,
+                subtitle:
+                    quote.author != null ? Text('— ${quote.author}') : null,
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () {

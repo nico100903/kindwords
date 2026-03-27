@@ -1037,6 +1037,234 @@ void main() {
       },
     );
   });
+
+  // ===========================================================================
+  // TASK 07.02 — EDIT/DELETE FROM CATALOG
+  // ===========================================================================
+
+  // -------------------------------------------------------------------------
+  // Test: Edit button navigates to QuoteFormScreen with quote parameter
+  // -------------------------------------------------------------------------
+
+  group('Edit button navigation', () {
+    testWidgets(
+      'tapping edit icon navigates to QuoteFormScreen in edit mode',
+      (WidgetTester tester) async {
+        final existingQuote = _seededMotivational;
+        final repo = _FullCrudCatalogRepository([existingQuote]);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => _MockEditQuoteFormScreen(
+                quote: existingQuote,
+              ),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Find and tap the edit icon
+        final editIcon = find.byIcon(Icons.edit_outlined);
+        expect(editIcon, findsOneWidget,
+            reason: 'Edit icon must be visible on quote row');
+
+        await tester.tap(editIcon);
+        await tester.pumpAndSettle();
+
+        // Assert: navigated to QuoteFormScreen in edit mode
+        expect(
+          find.text('Edit Quote'),
+          findsOneWidget,
+          reason: 'Tapping edit icon must navigate to QuoteFormScreen in edit mode '
+              'which shows "Edit Quote" title',
+        );
+      },
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Test: Catalog refresh after UPDATE
+  // -------------------------------------------------------------------------
+
+  group('Catalog refresh after update', () {
+    testWidgets(
+      'after successful update and pop, catalog shows updated quote text',
+      (WidgetTester tester) async {
+        final originalQuote = Quote(
+          id: 'update-test-001',
+          text: 'Original quote text before update.',
+          author: 'Original Author',
+          tags: const ['motivational'],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.utc(2026, 3, 1),
+        );
+
+        final repo = _FullCrudCatalogRepository([originalQuote]);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => _MockEditQuoteFormScreenWithUpdate(
+                quote: originalQuote,
+                onUpdate: () async {
+                  // Simulate updating the quote
+                  final updatedQuote = Quote(
+                    id: originalQuote.id,
+                    text: 'Updated quote text after edit!',
+                    author: 'Updated Author',
+                    tags: const ['wisdom'],
+                    source: originalQuote.source,
+                    createdAt: originalQuote.createdAt,
+                    updatedAt: DateTime.now(),
+                  );
+                  await provider.updateQuote(updatedQuote);
+                },
+              ),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Initially shows original text
+        expect(
+          find.textContaining('Original quote text'),
+          findsOneWidget,
+          reason: 'Catalog must initially show original quote text',
+        );
+
+        // Tap edit icon
+        await tester.tap(find.byIcon(Icons.edit_outlined));
+        await tester.pumpAndSettle();
+
+        // Tap mock update button
+        final updateButton = find.text('Mock Update');
+        if (updateButton.evaluate().isNotEmpty) {
+          await tester.tap(updateButton);
+          await tester.pumpAndSettle();
+        }
+
+        // Assert: catalog shows updated text
+        expect(
+          find.textContaining('Updated quote text'),
+          findsOneWidget,
+          reason: 'After returning from QuoteFormScreen with a successful update, '
+              'the catalog must refresh and show the updated quote text',
+        );
+
+        // Original text should no longer appear
+        expect(
+          find.textContaining('Original quote text before'),
+          findsNothing,
+          reason: 'Original quote text must not appear after update',
+        );
+      },
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Test: Catalog refresh after DELETE from catalog (bottom sheet)
+  // -------------------------------------------------------------------------
+
+  group('Catalog refresh after delete from catalog', () {
+    testWidgets(
+      'after confirming delete from catalog, quote no longer appears',
+      (WidgetTester tester) async {
+        final quote1 = Quote(
+          id: 'delete-test-001',
+          text: 'Quote that will remain.',
+          author: 'Author 1',
+          tags: const [],
+          source: QuoteSource.seeded,
+          createdAt: DateTime.utc(2026, 3, 1),
+        );
+
+        final quote2 = Quote(
+          id: 'delete-test-002',
+          text: 'Quote that will be deleted.',
+          author: 'Author 2',
+          tags: const [],
+          source: QuoteSource.userCreated,
+          createdAt: DateTime.utc(2026, 3, 2),
+        );
+
+        final repo = _FullCrudCatalogRepository([quote1, quote2]);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Initially shows both quotes
+        expect(
+          find.byType(ListTile),
+          findsNWidgets(2),
+          reason: 'Catalog must initially show both quotes',
+        );
+
+        // Find and tap the delete icon on the second quote
+        final deleteIcons = find.byIcon(Icons.delete_outline);
+        expect(deleteIcons, findsNWidgets(2),
+            reason: 'Each quote row must have a delete icon');
+
+        // Tap delete on the second quote (the one to be deleted)
+        await tester.tap(deleteIcons.at(1));
+        await tester.pumpAndSettle();
+
+        // Assert: bottom sheet confirmation appears
+        expect(
+          find.textContaining('Delete Quote'),
+          findsOneWidget,
+          reason: 'Tapping delete icon must show a bottom sheet with "Delete Quote" title',
+        );
+
+        // Tap confirm delete button
+        final confirmDelete = find.widgetWithText(TextButton, 'Delete');
+        expect(confirmDelete, findsWidgets,
+            reason: 'Delete confirmation bottom sheet must have a Delete button');
+
+        await tester.tap(confirmDelete.last);
+        await tester.pumpAndSettle();
+
+        // Assert: only one quote remains
+        expect(
+          find.byType(ListTile),
+          findsOneWidget,
+          reason: 'After confirming delete, the catalog must refresh and show '
+              'only one quote (the remaining one)',
+        );
+
+        // Assert: deleted quote text no longer appears
+        expect(
+          find.textContaining('Quote that will be deleted'),
+          findsNothing,
+          reason: 'The deleted quote text must not appear in the catalog',
+        );
+      },
+    );
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1099,6 +1327,61 @@ class _CreatableQuoteRepository implements QuoteRepositoryBase {
 }
 
 // ---------------------------------------------------------------------------
+// Task 07.02 — Full CRUD repository for catalog edit/delete tests
+// ---------------------------------------------------------------------------
+
+class _FullCrudCatalogRepository implements QuoteRepositoryBase {
+  final List<Quote> _quotes;
+  final List<Quote> _updatedQuotes = [];
+  final List<String> _deletedIds = [];
+
+  _FullCrudCatalogRepository(this._quotes);
+
+  List<Quote> get updatedQuotes => List.unmodifiable(_updatedQuotes);
+  List<String> get deletedIds => List.unmodifiable(_deletedIds);
+
+  @override
+  Future<List<Quote>> getAllQuotes() async => List.unmodifiable(_quotes);
+
+  @override
+  Future<Quote?> getById(String id) async {
+    try {
+      return _quotes.firstWhere((q) => q.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> insertQuote(Quote quote) async {
+    _quotes.add(quote);
+  }
+
+  @override
+  Future<void> updateQuote(Quote quote) async {
+    _updatedQuotes.add(quote);
+    final index = _quotes.indexWhere((q) => q.id == quote.id);
+    if (index >= 0) {
+      _quotes[index] = quote;
+    }
+  }
+
+  @override
+  Future<void> deleteQuote(String id) async {
+    _deletedIds.add(id);
+    _quotes.removeWhere((q) => q.id == id);
+  }
+
+  @override
+  Future<List<Quote>> getBySource(QuoteSource source) async =>
+      _quotes.where((q) => q.source == source).toList();
+
+  @override
+  Future<List<Quote>> getByTag(String tag) async =>
+      _quotes.where((q) => q.tags.contains(tag)).toList();
+}
+
+// ---------------------------------------------------------------------------
 // Task 07.01 — Mock QuoteFormScreen for navigation tests
 // ---------------------------------------------------------------------------
 
@@ -1146,6 +1429,63 @@ class _MockQuoteFormScreenWithSave extends StatelessWidget {
       ),
       body: const Center(
         child: Text('Mock Quote Form with Save'),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Task 07.02 — Mock edit QuoteFormScreen for edit navigation tests
+// ---------------------------------------------------------------------------
+
+/// Mock QuoteFormScreen in edit mode that shows "Edit Quote" title.
+class _MockEditQuoteFormScreen extends StatelessWidget {
+  final Quote quote;
+
+  const _MockEditQuoteFormScreen({required this.quote});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Quote'),
+      ),
+      body: Center(
+        child: Text('Editing quote: ${quote.id}'),
+      ),
+    );
+  }
+}
+
+/// Mock QuoteFormScreen in edit mode with an update button.
+class _MockEditQuoteFormScreenWithUpdate extends StatelessWidget {
+  final Quote quote;
+  final Future<void> Function() onUpdate;
+
+  const _MockEditQuoteFormScreenWithUpdate({
+    required this.quote,
+    required this.onUpdate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Quote'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await onUpdate();
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: const Text('Mock Update'),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Text('Editing quote: ${quote.id}'),
       ),
     );
   }

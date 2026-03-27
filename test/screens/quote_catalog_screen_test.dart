@@ -924,19 +924,19 @@ void main() {
             ),
             routes: {
               '/quote-form': (context) => _MockQuoteFormScreenWithSave(
-                        onSaved: () async {
-                          // Simulate creating a quote via provider
-                          final newQuote = Quote(
-                            id: 'new001',
-                            text: 'A newly created quote text.',
-                            author: 'Test User',
-                            tags: const ['personal'],
-                            source: QuoteSource.userCreated,
-                            createdAt: DateTime.now(),
-                          );
-                          await provider.createQuote(newQuote);
-                        },
-                      ),
+                    onSaved: () async {
+                      // Simulate creating a quote via provider
+                      final newQuote = Quote(
+                        id: 'new001',
+                        text: 'A newly created quote text.',
+                        author: 'Test User',
+                        tags: const ['personal'],
+                        source: QuoteSource.userCreated,
+                        createdAt: DateTime.now(),
+                      );
+                      await provider.createQuote(newQuote);
+                    },
+                  ),
             },
           ),
         );
@@ -962,7 +962,8 @@ void main() {
         expect(
           find.byType(ListTile),
           findsWidgets,
-          reason: 'After returning from QuoteFormScreen with a successful save, '
+          reason:
+              'After returning from QuoteFormScreen with a successful save, '
               'the catalog must refresh and show the newly created quote',
         );
 
@@ -992,18 +993,18 @@ void main() {
             ),
             routes: {
               '/quote-form': (context) => _MockQuoteFormScreenWithSave(
-                        onSaved: () async {
-                          final newQuote = Quote(
-                            id: 'new002',
-                            text: 'Another newly created quote.',
-                            author: null,
-                            tags: const [],
-                            source: QuoteSource.userCreated,
-                            createdAt: DateTime.now(),
-                          );
-                          await provider.createQuote(newQuote);
-                        },
-                      ),
+                    onSaved: () async {
+                      final newQuote = Quote(
+                        id: 'new002',
+                        text: 'Another newly created quote.',
+                        author: null,
+                        tags: const [],
+                        source: QuoteSource.userCreated,
+                        createdAt: DateTime.now(),
+                      );
+                      await provider.createQuote(newQuote);
+                    },
+                  ),
             },
           ),
         );

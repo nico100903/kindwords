@@ -76,8 +76,7 @@ class _CapturingQuoteRepository implements QuoteRepositoryBase {
 /// QuoteCatalogProvider backed by a capturing repository.
 ///
 /// Returns both provider and repository for assertions.
-Future<(_CapturingQuoteRepository, QuoteCatalogProvider)>
-    _buildQuoteFormScreen(
+Future<(_CapturingQuoteRepository, QuoteCatalogProvider)> _buildQuoteFormScreen(
   WidgetTester tester, {
   List<Quote> seedQuotes = const [],
 }) async {
@@ -157,10 +156,8 @@ void main() {
 
           // Assert: validation error is shown
           // Look for validation error text (case-insensitive match via evaluating widgets)
-          final errorTexts = find
-              .textContaining('required')
-              .evaluate()
-              .where((e) =>
+          final errorTexts = find.textContaining('required').evaluate().where(
+              (e) =>
                   (e.widget as Text).data?.toLowerCase().contains('required') ??
                   false);
 
@@ -239,7 +236,8 @@ void main() {
         expect(
           validationError,
           findsNothing,
-          reason: 'Quote text with exactly 10 characters must pass validation — '
+          reason:
+              'Quote text with exactly 10 characters must pass validation — '
               'no "at least 10" error should appear',
         );
       },
@@ -261,7 +259,8 @@ void main() {
         expect(
           textFields,
           findsAtLeastNWidgets(2),
-          reason: 'QuoteFormScreen must have at least two TextFormField widgets '
+          reason:
+              'QuoteFormScreen must have at least two TextFormField widgets '
               '(quote text and author)',
         );
       },
@@ -284,7 +283,8 @@ void main() {
 
         // Assert: no validation error for author (it's optional)
         // Look for any error text mentioning "author" with "required" or "empty"
-        final authorErrors = find.textContaining('author').evaluate().where((e) {
+        final authorErrors =
+            find.textContaining('author').evaluate().where((e) {
           final text = (e.widget as Text).data?.toLowerCase() ?? '';
           return text.contains('required') || text.contains('empty');
         });
@@ -292,7 +292,8 @@ void main() {
         expect(
           authorErrors.toList(),
           isEmpty,
-          reason: 'Author field is optional — no validation error should appear '
+          reason:
+              'Author field is optional — no validation error should appear '
               'when it is empty',
         );
       },
@@ -547,7 +548,8 @@ void main() {
         expect(
           find.textContaining('Delete'),
           findsNothing,
-          reason: 'QuoteFormScreen in create mode must NOT show a delete button '
+          reason:
+              'QuoteFormScreen in create mode must NOT show a delete button '
               '— delete is edit-mode only (task 07.02)',
         );
       },
@@ -562,7 +564,8 @@ void main() {
         expect(
           find.widgetWithText(TextButton, 'Delete this quote'),
           findsNothing,
-          reason: 'The "Delete this quote" button must only appear in edit mode, '
+          reason:
+              'The "Delete this quote" button must only appear in edit mode, '
               'not in create mode',
         );
       },

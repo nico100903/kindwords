@@ -64,6 +64,7 @@ First public release. All three core user journeys ship fully offline.
 - Quote CRUD foundation: local SQLite schema migrated from v1 to v2, adding tags, source, and timestamp fields to every stored quote. Existing quotes are preserved and enriched with safe defaults — no data loss or reinstall required.
 - Quote CRUD data-access and catalog state foundation: `QuoteDatabase` gains insert, update, delete, getBySource, and getByTag methods; `QuoteRepositoryBase` and `LocalQuoteRepository` expose the same CRUD interface; new `QuoteCatalogProvider` owns full catalog state with reactive source and tag filters; `QuoteProvider` adds `refreshCurrentIfStale` continuity hook; `FavoritesProvider` adds `reload()` continuity hook.
 - Quote Catalog screen (`/quotes`): browse and filter the full local quote collection by source (All / Seeded / Mine) and predefined tag; each row shows quote text, author or anonymous fallback, source icon, tags, and edit/delete action buttons.
+- Quote create flow: new `QuoteFormScreen` allows users to write their own quotes with text (≥10 chars), optional author, and up to 3 predefined tags; quotes are saved locally with source `userCreated` and a generated timestamp; the Quote Catalog exposes create entry points via an AppBar `+` icon and a `"New Quote"` floating action button; after a successful save the catalog reloads automatically to include the new quote.
 
 ---
 

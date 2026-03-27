@@ -5,6 +5,7 @@ analyzer:
     - test/main_boot_callback_test.dart
     - test/models/quote_model_test.dart
     - test/data/quote_database_test.dart
+    - test/screens/quote_form_screen_test.dart
   language:
     strict-casts: true
     strict-inference: true

@@ -761,6 +761,281 @@ void main() {
       },
     );
   });
+
+  // -------------------------------------------------------------------------
+  // Task 07.01 — Create entry points (AppBar + and FAB)
+  // -------------------------------------------------------------------------
+
+  group('Create entry points', () {
+    testWidgets(
+      'AppBar has an add icon button for creating new quotes',
+      (WidgetTester tester) async {
+        final provider = await _buildCatalogScreen(
+          tester,
+          quotes: _allTestQuotes,
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Assert: AppBar has an add icon
+        expect(
+          find.byIcon(Icons.add),
+          findsWidgets,
+          reason: 'QuoteCatalogScreen AppBar must have an IconButton with '
+              'Icons.add for creating new quotes',
+        );
+      },
+    );
+
+    testWidgets(
+      'FloatingActionButton with "New Quote" label is visible',
+      (WidgetTester tester) async {
+        final provider = await _buildCatalogScreen(
+          tester,
+          quotes: _allTestQuotes,
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Assert: FAB exists
+        expect(
+          find.byType(FloatingActionButton),
+          findsOneWidget,
+          reason: 'QuoteCatalogScreen must have a FloatingActionButton for '
+              'creating new quotes',
+        );
+
+        // Assert: FAB shows "New Quote" text (extended FAB)
+        expect(
+          find.text('New Quote'),
+          findsOneWidget,
+          reason: 'FloatingActionButton.extended must show "New Quote" label',
+        );
+      },
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Task 07.01 — Navigation to QuoteFormScreen
+  // -------------------------------------------------------------------------
+
+  group('Create navigation', () {
+    testWidgets(
+      'tapping AppBar add icon navigates to QuoteFormScreen',
+      (WidgetTester tester) async {
+        final repo = _CreatableQuoteRepository(_allTestQuotes);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => const _MockQuoteFormScreen(),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Find and tap the AppBar add button (not the FAB)
+        final appBarAddButton = find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byIcon(Icons.add),
+        );
+
+        if (appBarAddButton.evaluate().isNotEmpty) {
+          await tester.tap(appBarAddButton);
+          await tester.pumpAndSettle();
+
+          // Assert: navigated to QuoteFormScreen (or mock)
+          expect(
+            find.text('New Quote'),
+            findsOneWidget,
+            reason: 'Tapping AppBar add button must navigate to '
+                'QuoteFormScreen which shows "New Quote" title',
+          );
+        } else {
+          fail('AppBar add button not found');
+        }
+      },
+    );
+
+    testWidgets(
+      'tapping FAB navigates to QuoteFormScreen',
+      (WidgetTester tester) async {
+        final repo = _CreatableQuoteRepository(_allTestQuotes);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => const _MockQuoteFormScreen(),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Find and tap the FAB
+        final fab = find.byType(FloatingActionButton);
+        expect(fab, findsOneWidget, reason: 'FAB must be present');
+
+        await tester.tap(fab);
+        await tester.pumpAndSettle();
+
+        // Assert: navigated to QuoteFormScreen (or mock)
+        expect(
+          find.text('New Quote'),
+          findsOneWidget,
+          reason: 'Tapping FAB must navigate to QuoteFormScreen which shows '
+              '"New Quote" title',
+        );
+      },
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Task 07.01 — Post-save catalog refresh
+  // -------------------------------------------------------------------------
+
+  group('Post-save catalog refresh', () {
+    testWidgets(
+      'after successful save and pop, catalog list shows the new quote',
+      (WidgetTester tester) async {
+        final repo = _CreatableQuoteRepository([]);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => _MockQuoteFormScreenWithSave(
+                        onSaved: () async {
+                          // Simulate creating a quote via provider
+                          final newQuote = Quote(
+                            id: 'new001',
+                            text: 'A newly created quote text.',
+                            author: 'Test User',
+                            tags: const ['personal'],
+                            source: QuoteSource.userCreated,
+                            createdAt: DateTime.now(),
+                          );
+                          await provider.createQuote(newQuote);
+                        },
+                      ),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Initially: empty state or no quotes
+        final initialTileCount = find.byType(ListTile).evaluate().length;
+
+        // Tap FAB to navigate to form
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+
+        // Tap mock save button
+        final saveButton = find.text('Mock Save');
+        if (saveButton.evaluate().isNotEmpty) {
+          await tester.tap(saveButton);
+          await tester.pumpAndSettle();
+        }
+
+        // Assert: catalog now shows the new quote
+        expect(
+          find.byType(ListTile),
+          findsWidgets,
+          reason: 'After returning from QuoteFormScreen with a successful save, '
+              'the catalog must refresh and show the newly created quote',
+        );
+
+        // Verify the quote text appears
+        expect(
+          find.textContaining('newly created'),
+          findsOneWidget,
+          reason: 'The newly created quote text must be visible in the catalog '
+              'after save and return',
+        );
+      },
+    );
+
+    testWidgets(
+      'catalog reload is triggered after returning from successful create',
+      (WidgetTester tester) async {
+        final repo = _CreatableQuoteRepository([
+          _seededMotivational, // Start with one quote
+        ]);
+        final provider = QuoteCatalogProvider(repo);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: provider,
+              child: const QuoteCatalogScreen(),
+            ),
+            routes: {
+              '/quote-form': (context) => _MockQuoteFormScreenWithSave(
+                        onSaved: () async {
+                          final newQuote = Quote(
+                            id: 'new002',
+                            text: 'Another newly created quote.',
+                            author: null,
+                            tags: const [],
+                            source: QuoteSource.userCreated,
+                            createdAt: DateTime.now(),
+                          );
+                          await provider.createQuote(newQuote);
+                        },
+                      ),
+            },
+          ),
+        );
+
+        await provider.load();
+        await tester.pumpAndSettle();
+
+        // Count initial tiles
+        final initialCount = find.byType(ListTile).evaluate().length;
+        expect(initialCount, equals(1), reason: 'Should start with 1 quote');
+
+        // Navigate to form
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+
+        // Save and return
+        final saveButton = find.text('Mock Save');
+        if (saveButton.evaluate().isNotEmpty) {
+          await tester.tap(saveButton);
+          await tester.pumpAndSettle();
+        }
+
+        // Assert: tile count increased by 1
+        expect(
+          find.byType(ListTile),
+          findsNWidgets(2),
+          reason: 'After creating a new quote and returning, the catalog must '
+              'show 2 ListTiles (1 original + 1 new)',
+        );
+      },
+    );
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -779,5 +1054,98 @@ class _TrackingQuoteCatalogProvider extends QuoteCatalogProvider {
   Future<void> load() async {
     onLoad();
     return super.load();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Task 07.01 — Creatable repository for create-flow tests
+// ---------------------------------------------------------------------------
+
+class _CreatableQuoteRepository implements QuoteRepositoryBase {
+  final List<Quote> _quotes;
+
+  _CreatableQuoteRepository(this._quotes);
+
+  @override
+  Future<List<Quote>> getAllQuotes() async => List.unmodifiable(_quotes);
+
+  @override
+  Future<Quote?> getById(String id) async {
+    try {
+      return _quotes.firstWhere((q) => q.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> insertQuote(Quote quote) async {
+    _quotes.add(quote);
+  }
+
+  @override
+  Future<void> updateQuote(Quote quote) => throw UnimplementedError();
+
+  @override
+  Future<void> deleteQuote(String id) => throw UnimplementedError();
+
+  @override
+  Future<List<Quote>> getBySource(QuoteSource source) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<Quote>> getByTag(String tag) => throw UnimplementedError();
+}
+
+// ---------------------------------------------------------------------------
+// Task 07.01 — Mock QuoteFormScreen for navigation tests
+// ---------------------------------------------------------------------------
+
+/// Minimal mock QuoteFormScreen that shows "New Quote" title.
+/// Used to verify navigation from catalog to form.
+class _MockQuoteFormScreen extends StatelessWidget {
+  const _MockQuoteFormScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('New Quote'),
+      ),
+      body: const Center(
+        child: Text('Mock Quote Form'),
+      ),
+    );
+  }
+}
+
+/// Mock QuoteFormScreen with a save button that calls onSaved callback
+/// and pops with result true.
+class _MockQuoteFormScreenWithSave extends StatelessWidget {
+  final Future<void> Function() onSaved;
+
+  const _MockQuoteFormScreenWithSave({required this.onSaved});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('New Quote'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await onSaved();
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: const Text('Mock Save'),
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Mock Quote Form with Save'),
+      ),
+    );
   }
 }

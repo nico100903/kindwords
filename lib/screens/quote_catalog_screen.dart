@@ -47,8 +47,11 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
         title: const Text('All Quotes'),
       ),
       body: Consumer<QuoteCatalogProvider>(
-        builder: (final BuildContext context,
-            final QuoteCatalogProvider provider, final Widget? child) {
+        builder: (
+          final BuildContext context,
+          final QuoteCatalogProvider provider,
+          final Widget? child,
+        ) {
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }

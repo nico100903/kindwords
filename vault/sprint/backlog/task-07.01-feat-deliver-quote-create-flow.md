@@ -11,7 +11,7 @@ blocks: ["07.02"]
 parent: "07"
 branch: "feat/task-07-quote-form-flows"
 assignee: dev
-enriched: false
+enriched: true
 ---
 
 # Task 07.01: Deliver Quote Create Flow
@@ -44,8 +44,106 @@ As a user, I want to write and save my own quote so that KindWords can store per
 
 ---
 
-## Affected Areas
+## Technical Guidance
 
-- Quote creation entry points from the catalog
-- New quote validation and save behavior
-- User-created quote metadata continuity
+### Architecture Notes
+
+**Axis:** Form state lifecycle — the decisive problem is managing local form state (controllers, validation) separately from app state (provider), with proper coordination at submit time.
+
+**Pattern: StatefulWidget with GlobalKey<FormState>**
+
+`QuoteFormScreen` must be a `StatefulWidget` because it owns:
+- `TextEditingController` instances for quote text and author fields
+- `GlobalKey<FormState>` for validation triggering
+- `Set<String>` of selected tags (local UI state, not provider state)
+
+Do NOT use `StatelessWidget` — form controllers require lifecycle management via `dispose()`.
+
+**Create mode only — no `quote` argument**
+
+This task implements create mode only. The `QuoteFormScreen` constructor should not require a `Quote? quote` parameter yet. Edit mode is task 07.02.
+
+**Form fields and validation**
+
+| Field | Widget | Required | Validation |
+|-------|--------|----------|------------|
+| Quote text | `TextFormField`, `minLines: 4`, `maxLines: null` | Yes | Non-empty, ≥10 characters |
+| Author | `TextFormField`, single line | No | None |
+| Tags | `Wrap` of `FilterChip` | No | Max 3 selectable |
+
+Validation must be inline / form-based using `TextFormField.validator` — do NOT use snackbar-only error display. Call `_formKey.currentState!.validate()` on Save tap.
+
+**Source handling**
+
+Source is implicitly `userCreated` for create mode. Display it as read-only info (per UI spec: `Icons.edit_note` + `"Your own quote"`). The source field is NOT user-editable.
+
+**ID generation strategy**
+
+User-created quotes require deterministic unique IDs. Use:
+```
+id: "user_${DateTime.now().millisecondsSinceEpoch}"
+```
+
+This is dependency-free (no `uuid` package required) and produces a stable, sortable identifier.
+
+**Tag selection logic**
+
+- Tags are selected from the predefined set already defined in `quote_catalog_screen.dart` (`_kPredefinedTags`).
+- `#personal` is **selectable, not auto-required** — per SRS §8.3, a quote may have 0–3 tags. The UI spec line 157 ("auto-selected") is superseded by this planning note.
+- When 3 tags are selected, remaining unselected chips must be disabled.
+- Consider extracting a reusable `_TagSelector` widget if the chip logic exceeds ~30 lines.
+
+**Navigation and result handling**
+
+After successful save:
+1. Pop with result `true`: `Navigator.of(context).pop(true)`
+2. Catalog screen receives result via `await Navigator.push(...)` in both AppBar `+` and FAB handlers
+3. If result is `true`, call `context.read<QuoteCatalogProvider>().load()` to refresh
+
+Do NOT call provider mutation inside field callbacks. All persistence happens in the Save button's `onPressed` handler, after validation passes.
+
+**Catalog screen modifications**
+
+Add to `QuoteCatalogScreen`:
+- `AppBar.actions`: `IconButton(icon: Icons.add, onPressed: _navigateToCreate)`
+- `Scaffold.floatingActionButton`: `FloatingActionButton.extended(icon: Icons.add, label: "New Quote", onPressed: _navigateToCreate)`
+- Private method `_navigateToCreate()` that pushes `QuoteFormScreen` and handles result
+
+### Affected Areas
+
+| File | Change |
+|------|--------|
+| `lib/screens/quote_form_screen.dart` | **New** — StatefulWidget with form, controllers, tag selector |
+| `lib/screens/quote_catalog_screen.dart` | Add AppBar `+`, FAB, navigation result handling |
+| `lib/providers/quote_catalog_provider.dart` | Already has `createQuote()` — no changes needed |
+| `lib/models/quote.dart` | Already supports v2 fields — no changes needed |
+| `test/screens/quote_form_screen_test.dart` | **New** — widget tests for validation and save |
+| `test/screens/quote_catalog_screen_test.dart` | Add tests for FAB/create navigation |
+| `CHANGELOG.md` | Add entry under `## [Unreleased]` |
+
+### Quality Gates
+
+| Gate | Verification |
+|------|--------------|
+| Create entry point visible | AppBar `+` icon and/or FAB present on catalog screen |
+| Save blocked when invalid | Save button disabled until form valid; `validate()` returns false for text <10 chars |
+| Valid form creates user quote | After save, quote with `source: userCreated` exists in provider list |
+| Catalog shows new quote | After return from form, new quote visible in catalog list |
+| Tag limit enforced | Selecting 3 tags disables remaining chips |
+| Author optional | Form accepts empty author field; saves with `author: null` |
+| No edit-mode UI | No `quote` constructor argument, no edit-specific UI elements |
+| Lint clean | `flutter analyze` exits 0 |
+| Tests pass | `flutter test` exits 0 |
+| Changelog updated | Entry under `## [Unreleased]` describing create flow |
+
+### Gotchas
+
+1. **Catalog reload timing** — Do NOT call `load()` in `setState` or `didChangeDependencies`. Only reload after `await Navigator.push(...)` returns `true`. Calling reload too early or unconditionally will cause unnecessary DB reads or race conditions.
+
+2. **Provider mutation in field callbacks** — Resist the temptation to update provider state in `onChanged` handlers. All persistence must happen in the Save action, after validation passes. Early mutation creates partial-state bugs.
+
+3. **`#personal` auto-required assumption** — The UI spec suggests auto-selecting `#personal` for user quotes, but SRS §8.3 explicitly allows 0 tags. Follow SRS: `#personal` is selectable, not forced. Forcing it would violate "0–3 tags" business rule.
+
+4. **StatelessWidget for form** — Using `StatelessWidget` will cause controller disposal leaks and lose form state on rebuild. Must use `StatefulWidget` with `dispose()` override for controllers.
+
+5. **Edit-mode scope creep** — Do not add `quote` parameter, `isEditMode` flag, or update/delete logic. Those belong in task 07.02. Create-only keeps the commit atomic and reviewable.

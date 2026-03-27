@@ -1,4 +1,4 @@
-// ignore_for_file: require_trailing_commas, always_declare_return_types
+// ignore_for_file: require_trailing_commas, always_declare_return_types, unused_local_variable, use_super_parameters
 //
 // Task 06.01 — Failing widget tests for QuoteCatalogScreen browse and filter.
 //
@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 import 'package:kindwords/models/quote.dart';
 import 'package:kindwords/providers/quote_catalog_provider.dart';
 import 'package:kindwords/repositories/quote_repository.dart';
+import 'package:kindwords/screens/quote_catalog_screen.dart';
 
 // ---------------------------------------------------------------------------
 // In-memory test repository — returns pre-seeded quotes for provider tests.
@@ -177,9 +178,7 @@ Future<QuoteCatalogProvider> _buildCatalogScreen(
     MaterialApp(
       home: ChangeNotifierProvider.value(
         value: provider,
-        // QuoteCatalogScreen does not exist yet — import will fail.
-        // This is intentional: the test file establishes the contract.
-        child: const Placeholder(), // replaced with QuoteCatalogScreen by coder
+        child: const QuoteCatalogScreen(),
       ),
     ),
   );
@@ -213,8 +212,7 @@ void main() {
               // It must map to QuoteCatalogScreen
               '/quotes': (context) => ChangeNotifierProvider.value(
                     value: provider,
-                    // Placeholder until QuoteCatalogScreen exists
-                    child: const Placeholder(),
+                    child: const QuoteCatalogScreen(),
                   ),
             },
           ),
@@ -432,15 +430,15 @@ void main() {
         provider.setTagFilter('motivational');
         await tester.pumpAndSettle();
 
-        final motivationalCount = _allTestQuotes
-            .where((q) => q.tags.contains('motivational'))
-            .length;
+        final motivationalCount =
+            _allTestQuotes.where((q) => q.tags.contains('motivational')).length;
 
         // Assert: only motivational quotes visible
         expect(
           find.byType(ListTile),
           findsNWidgets(motivationalCount),
-          reason: 'Tag filter #motivational must show only quotes with that tag — '
+          reason:
+              'Tag filter #motivational must show only quotes with that tag — '
               '$motivationalCount expected',
         );
       },
@@ -486,7 +484,8 @@ void main() {
 
         // Verify the intersection is correct
         expect(intersectionCount, greaterThan(0),
-            reason: 'Test fixture must include at least one seeded+motivational '
+            reason:
+                'Test fixture must include at least one seeded+motivational '
                 'quote for composition test');
       },
     );
@@ -577,7 +576,8 @@ void main() {
         expect(
           find.widgetWithText(TextButton, 'Clear'),
           findsOneWidget,
-          reason: 'Empty-filter state must include a "Clear" or "Clear filters" '
+          reason:
+              'Empty-filter state must include a "Clear" or "Clear filters" '
               'button to reset filters',
         );
       },

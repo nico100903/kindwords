@@ -8,9 +8,11 @@ import '../repositories/quote_repository.dart';
 import '../services/quote_service.dart';
 import '../services/favorites_service.dart';
 import '../services/notification_service.dart';
+import '../providers/quote_catalog_provider.dart';
 import '../screens/home_screen.dart';
 import '../screens/favorites_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/quote_catalog_screen.dart';
 
 /// Bootstraps the KindWords application.
 ///
@@ -48,6 +50,9 @@ Future<Widget> bootstrapApp() async {
       ChangeNotifierProvider(
         create: (_) => FavoritesProvider(favoritesService),
       ),
+      ChangeNotifierProvider(
+        create: (_) => QuoteCatalogProvider(quoteRepo),
+      ),
       // Expose NotificationService for SettingsScreen access
       Provider<NotificationServiceBase>.value(value: notificationService),
     ],
@@ -74,6 +79,7 @@ class KindWordsApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/favorites': (context) => const FavoritesScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/quotes': (context) => const QuoteCatalogScreen(),
       },
     );
   }

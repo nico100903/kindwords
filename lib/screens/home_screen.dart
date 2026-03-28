@@ -29,12 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
         // Home is already selected, no navigation needed
         break;
       case 1:
-        Navigator.pushNamed(context, '/favorites');
+        Navigator.pushNamed(context, '/quotes');
         setState(() {
           _selectedIndex = 0; // Reset to Home after navigation
         });
         break;
       case 2:
+        Navigator.pushNamed(context, '/favorites');
+        setState(() {
+          _selectedIndex = 0; // Reset to Home after navigation
+        });
+        break;
+      case 3:
         Navigator.pushNamed(context, '/settings');
         setState(() {
           _selectedIndex = 0; // Reset to Home after navigation
@@ -139,6 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_quote_outlined),
+            activeIcon: Icon(Icons.format_quote),
+            label: 'Quotes',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite_outline),

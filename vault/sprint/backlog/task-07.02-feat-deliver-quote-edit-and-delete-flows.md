@@ -130,3 +130,13 @@ As a user, I want to edit or delete any quote in my local collection so that the
 - Quote form edit mode behavior
 - Quote deletion confirmation flow
 - Local-only seeded quote mutation rules
+
+---
+
+## Changes
+
+- Files modified: `lib/screens/quote_form_screen.dart`, `lib/screens/quote_catalog_screen.dart`, `CHANGELOG.md`, `test/screens/quote_form_screen_test.dart`, `test/screens/quote_catalog_screen_test.dart`
+- Tests: `flutter test` — 317 passed, 0 failed (23 skipped, pre-existing platform-channel skips)
+- Analyze: `flutter analyze` — 0 issues
+- Changelog: entry added under `## [Unreleased]` — "Quote edit and delete flows"
+- Deviations from Technical Guidance: none

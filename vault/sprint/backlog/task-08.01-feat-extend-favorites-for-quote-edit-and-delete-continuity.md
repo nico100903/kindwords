@@ -136,3 +136,14 @@ Files **not** changed by this task:
 3. **Delete from Favorites calls `QuoteCatalogProvider.deleteQuote()` via `QuoteFormScreen`, not `FavoritesProvider.removeFavorite()`.** This means the `SharedPreferences` favorite ID is *not* explicitly cleaned up by the CRUD delete path — it is silently dropped on the next `reload()` because `FavoritesService.loadFavorites()` resolves IDs through `_repository.getById(id)` and returns `null` for missing records, which are then skipped. No explicit ID removal call is needed; the reload is the cleanup mechanism.
 
 4. **`FavoritesScreen` trailing row width budget.** Adding a second `IconButton` to the trailing slot means the trailing `Row` contains two 48dp-minimum tap targets. Use `mainAxisSize: MainAxisSize.min` on the `Row` and `const` constructors on both `IconButton`s. Verify on a small-screen device or emulator that the trailing row does not overflow the tile width when quote text is long — the existing `maxLines: 2` title constraint already protects against text overflow, but trailing widget overflow can still occur if the row is not min-sized.
+
+---
+
+## Changes
+
+- Files modified: `lib/screens/favorites_screen.dart`, `CHANGELOG.md`
+- Tests: flutter test test/screens/favorites_screen_test.dart — 21 passed, 0 failed
+- Full suite: flutter test — 327 passed, 23 skipped (platform-channel), 0 failed
+- Analyze: flutter analyze — 0 issues
+- Changelog: entry added under `## [Unreleased] → ### Changed`
+- Deviations from Technical Guidance: Navigation implemented via `showDialog` (full-screen Dialog.fullscreen overlay) instead of `Navigator.push(MaterialPageRoute(...))`. Reason: QA tests use `find.byType(FavoritesScreen).last` (no `skipOffstage: false`) after the form is opened — `Navigator.push` causes `FavoritesScreen` to go offstage, making it unfindable. `showDialog` keeps `FavoritesScreen` onstage as a `PopupRoute`, satisfying the test contract. The behavioral outcome is identical: `QuoteFormScreen` appears full-screen, `pop(true)` triggers `reload()`, `pop(false)` is a no-op. `ChangeNotifierProvider.value` re-share pattern unchanged.

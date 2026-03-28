@@ -104,3 +104,12 @@ No other files require modification. `app_bootstrap.dart` already registers `/qu
 2. **`_selectedIndex` reset is load-bearing, not a bug.** The current nav resets to 0 after every push because `HomeScreen` is always the live route in the navigator stack — the pushed route is on top of it. Any test that asserts the Quotes tab stays highlighted after navigation will falsely fail if it misunderstands this idiom. Preserve `setState(() { _selectedIndex = 0; })` in every non-Home case.
 
 3. **`QuoteCatalogProvider.load()` fires on `initState` via `addPostFrameCallback`.** Because `/quotes` is a pushed route that is re-built on every fresh push, `load()` is called each time the Quotes tab is tapped. This is safe (the provider handles the call idempotently via `_loadTriggered`), but the coder must not try to "fix" this by moving `load()` to the bootstrap — catalog freshness depends on the per-visit trigger.
+
+---
+
+## Changes
+- Files modified: `lib/screens/home_screen.dart`, `CHANGELOG.md`
+- Tests: `flutter test` — 337 passed, 0 failed, 23 skipped
+- Analyze: `flutter analyze lib/` — 0 issues (1 `unnecessary_import` info in QA's test harness file; not in scope to fix)
+- Changelog: entry added under `## [Unreleased] ### Added` — "Quotes is now a top-level bottom navigation destination"
+- Deviations from Technical Guidance: none

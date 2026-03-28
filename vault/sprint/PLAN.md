@@ -121,9 +121,9 @@ Sprint 2 adds local quote CRUD on top of the finished offline foundation from Sp
 
 ## Sprint 2 Current Execution State
 
-- Backlog ready: `05`, `05.01`, `05.02`, `06`, `06.01`, `07`, `07.01`, `07.02`, `08`, `08.01`, `08.02`, `08.03`
+- Backlog ready: `08`, `08.01`, `08.02`, `08.03`
 - Ongoing: empty
-- Done: empty
+- Done: `05`, `05.01`, `05.02`, `06`, `06.01`, `07`, `07.01`, `07.02`
 
 ## Sprint 2 Task Summary
 

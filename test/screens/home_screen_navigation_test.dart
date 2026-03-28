@@ -146,9 +146,9 @@ Finder _bottomNavBar() => find.byType(BottomNavigationBar);
 
 /// Finds a BottomNavigationBarItem by its label text.
 Finder _navItemByLabel(String label) => find.descendant(
-  of: _bottomNavBar(),
-  matching: find.text(label),
-);
+      of: _bottomNavBar(),
+      matching: find.text(label),
+    );
 
 void main() {
   setUp(() async {
@@ -169,7 +169,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert — FAILS until coder adds 4th item (currently has 3)
-        final bottomNavBar = tester.widget<BottomNavigationBar>(_bottomNavBar());
+        final bottomNavBar =
+            tester.widget<BottomNavigationBar>(_bottomNavBar());
         expect(
           bottomNavBar.items.length,
           equals(4),
@@ -188,7 +189,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert — FAILS until coder adds Quotes at index 1 and shifts others
-        final bottomNavBar = tester.widget<BottomNavigationBar>(_bottomNavBar());
+        final bottomNavBar =
+            tester.widget<BottomNavigationBar>(_bottomNavBar());
         final labels = bottomNavBar.items.map((item) => item.label).toList();
 
         expect(
@@ -470,7 +472,8 @@ void main() {
         expect(
           inactiveIcon.icon,
           equals(Icons.format_quote_outlined),
-          reason: 'Quotes tab inactive icon must be Icons.format_quote_outlined',
+          reason:
+              'Quotes tab inactive icon must be Icons.format_quote_outlined',
         );
 
         // Check the activeIcon is Icons.format_quote (filled)

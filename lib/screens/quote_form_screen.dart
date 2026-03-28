@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/quote.dart';
 import '../providers/quote_catalog_provider.dart';
 
-/// Predefined tags available for selection when creating a quote.
+/// Predefined tags available for selection when creating or editing a quote.
 const List<String> _kFormTags = [
   'motivational',
   'wisdom',
@@ -15,19 +15,31 @@ const List<String> _kFormTags = [
   'personal',
 ];
 
-/// The Quote Form screen — create mode only (task 07.01).
+/// The Quote Form screen — supports both create mode (task 07.01) and
+/// edit mode (task 07.02).
+///
+/// **Create mode:** `quote == null`
+///   - AppBar shows "New Quote" title and ✕ close button.
+///   - Action button is "Save".
+///   - No delete section visible.
+///   - On save: builds a [Quote] with [QuoteSource.userCreated] and a new id.
+///
+/// **Edit mode:** `quote != null`
+///   - AppBar shows "Edit Quote" title and ← back button.
+///   - Action button is "Update".
+///   - Delete section is visible below a [Divider].
+///   - On update: preserves original [Quote.id], [Quote.createdAt], and
+///     [Quote.source]; sets [Quote.updatedAt] to the current time.
+///   - On delete: shows [AlertDialog] confirmation before removing.
 ///
 /// Uses a [Form] with a [GlobalKey<FormState>] for validation.
 /// Owns [TextEditingController] instances that are disposed in [dispose].
 /// Selected tags are held in a [Set<String>] as local UI state.
-///
-/// On successful save:
-/// 1. Validates the form.
-/// 2. Builds a [Quote] with source [QuoteSource.userCreated].
-/// 3. Calls [QuoteCatalogProvider.createQuote].
-/// 4. Pops with result `true` so the caller can refresh.
 class QuoteFormScreen extends StatefulWidget {
-  const QuoteFormScreen({super.key});
+  /// The existing quote to edit. When null, the screen operates in create mode.
+  final Quote? quote;
+
+  const QuoteFormScreen({super.key, this.quote});
 
   @override
   State<QuoteFormScreen> createState() => _QuoteFormScreenState();
@@ -35,11 +47,22 @@ class QuoteFormScreen extends StatefulWidget {
 
 class _QuoteFormScreenState extends State<QuoteFormScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _textController = TextEditingController();
-  final TextEditingController _authorController = TextEditingController();
+  late final TextEditingController _textController;
+  late final TextEditingController _authorController;
 
-  final Set<String> _selectedTags = {};
+  late final Set<String> _selectedTags;
   bool _isSaving = false;
+
+  bool get _isEditMode => widget.quote != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final Quote? q = widget.quote;
+    _textController = TextEditingController(text: q?.text ?? '');
+    _authorController = TextEditingController(text: q?.author ?? '');
+    _selectedTags = q != null ? Set<String>.from(q.tags) : {};
+  }
 
   @override
   void dispose() {
@@ -48,27 +71,50 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     super.dispose();
   }
 
-  // ── Save action ─────────────────────────────────────────────────────────────
+  // ── Save / Update action ─────────────────────────────────────────────────────
 
   Future<void> _onSave() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isSaving = true);
 
-    final quote = Quote(
-      id: 'user_${DateTime.now().millisecondsSinceEpoch}',
-      text: _textController.text.trim(),
-      author: _authorController.text.trim().isEmpty
-          ? null
-          : _authorController.text.trim(),
-      tags: _selectedTags.toList(),
-      source: QuoteSource.userCreated,
-      createdAt: DateTime.now(),
-      updatedAt: null,
-    );
+    final Quote quote;
+
+    if (_isEditMode) {
+      // Edit mode — preserve id, createdAt, source; set updatedAt
+      final Quote original = widget.quote!;
+      quote = Quote(
+        id: original.id,
+        text: _textController.text.trim(),
+        author: _authorController.text.trim().isEmpty
+            ? null
+            : _authorController.text.trim(),
+        tags: _selectedTags.toList(),
+        source: original.source,
+        createdAt: original.createdAt,
+        updatedAt: DateTime.now(),
+      );
+    } else {
+      // Create mode
+      quote = Quote(
+        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
+        text: _textController.text.trim(),
+        author: _authorController.text.trim().isEmpty
+            ? null
+            : _authorController.text.trim(),
+        tags: _selectedTags.toList(),
+        source: QuoteSource.userCreated,
+        createdAt: DateTime.now(),
+        updatedAt: null,
+      );
+    }
 
     try {
-      await context.read<QuoteCatalogProvider>().createQuote(quote);
+      if (_isEditMode) {
+        await context.read<QuoteCatalogProvider>().updateQuote(quote);
+      } else {
+        await context.read<QuoteCatalogProvider>().createQuote(quote);
+      }
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -80,6 +126,43 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
             content: Text('Failed to save quote. Please try again.'),
           ),
         );
+      }
+    }
+  }
+
+  // ── Delete action ────────────────────────────────────────────────────────────
+
+  Future<void> _onDelete() async {
+    final Quote original = widget.quote!;
+
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (final BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Quote?'),
+          content: Text(
+            'Quote text: "${original.text.length > 60 ? '${original.text.substring(0, 60)}…' : original.text}" '
+            'will be permanently removed from your local collection.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      await context.read<QuoteCatalogProvider>().deleteQuote(original.id);
+      if (mounted) {
+        Navigator.of(context).pop(true);
       }
     }
   }
@@ -96,6 +179,28 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     });
   }
 
+  // ── Source indicator ─────────────────────────────────────────────────────────
+
+  Widget _buildSourceIndicator(final BuildContext context) {
+    if (_isEditMode) {
+      final Quote original = widget.quote!;
+      final bool isSeeded = original.source == QuoteSource.seeded;
+      return ListTile(
+        enabled: false,
+        leading: Icon(isSeeded ? Icons.menu_book_outlined : Icons.edit_note),
+        title: Text(isSeeded ? 'From bundled catalog' : 'Your own quote'),
+        contentPadding: EdgeInsets.zero,
+      );
+    }
+    // Create mode — always userCreated
+    return const ListTile(
+      enabled: false,
+      leading: Icon(Icons.edit_note),
+      title: Text('Your own quote'),
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
   // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
@@ -103,14 +208,48 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool maxTagsReached = _selectedTags.length >= 3;
 
+    final String title = _isEditMode ? 'Edit Quote' : 'New Quote';
+    final String actionLabel = _isEditMode ? 'Update' : 'Save';
+
+    // Edit mode: show delete section as a persistent bottom bar so the button
+    // is always visible in the viewport regardless of scroll position.
+    // The Divider at the top of the bottom bar satisfies the spec requirement
+    // that the delete button appears "below a Divider".
+    final Widget? deleteBar = _isEditMode
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Center(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                    onPressed: _onDelete,
+                    child: const Text('Delete this quote'),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : null;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Quote'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Discard',
-          onPressed: () => Navigator.of(context).pop(false),
-        ),
+        title: Text(title),
+        leading: _isEditMode
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back',
+                onPressed: () => Navigator.of(context).pop(false),
+              )
+            : IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: 'Discard',
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
         actions: [
           _isSaving
               ? const Padding(
@@ -125,10 +264,11 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                 )
               : TextButton(
                   onPressed: _onSave,
-                  child: const Text('Save'),
+                  child: Text(actionLabel),
                 ),
         ],
       ),
+      bottomNavigationBar: deleteBar,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -203,12 +343,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                 style: Theme.of(context).textTheme.labelSmall,
               ),
               const SizedBox(height: 4),
-              const ListTile(
-                enabled: false,
-                leading: Icon(Icons.edit_note),
-                title: Text('Your own quote'),
-                contentPadding: EdgeInsets.zero,
-              ),
+              _buildSourceIndicator(context),
             ],
           ),
         ),

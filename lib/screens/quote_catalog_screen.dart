@@ -56,8 +56,6 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
     final NavigatorState navigator = Navigator.of(context);
 
     // Check whether the named route is registered by looking up the route.
-    // MaterialApp builds a RouteFactory that handles named routes, so if
-    // '/quote-form' is in [routes], the factory will return a non-null route.
     final Route<dynamic>? namedRoute = navigator.widget.onGenerateRoute
         ?.call(const RouteSettings(name: '/quote-form'));
 
@@ -77,6 +75,97 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
 
     if (result == true && mounted) {
       await context.read<QuoteCatalogProvider>().load();
+    }
+  }
+
+  /// Navigates to [QuoteFormScreen] in edit mode for the given [quote].
+  ///
+  /// Uses the same named-route vs direct-push strategy as [_navigateToCreate].
+  /// After returning, reloads the catalog if the result is true (update/delete).
+  Future<void> _navigateToEdit(final Quote quote) async {
+    dynamic result;
+
+    final NavigatorState navigator = Navigator.of(context);
+
+    // Check for named route (e.g. injected in tests via MaterialApp.routes)
+    final Route<dynamic>? namedRoute = navigator.widget.onGenerateRoute
+        ?.call(const RouteSettings(name: '/quote-form'));
+
+    if (namedRoute != null) {
+      result = await navigator.pushNamed('/quote-form', arguments: quote);
+    } else {
+      final provider = context.read<QuoteCatalogProvider>();
+      result = await navigator.push<bool>(
+        MaterialPageRoute<bool>(
+          builder: (_) => ChangeNotifierProvider.value(
+            value: provider,
+            child: QuoteFormScreen(quote: quote),
+          ),
+        ),
+      );
+    }
+
+    if (result == true && mounted) {
+      await context.read<QuoteCatalogProvider>().load();
+    }
+  }
+
+  /// Shows a bottom sheet confirmation dialog and deletes the quote
+  /// if the user confirms.
+  Future<void> _showDeleteConfirmation(final Quote quote) async {
+    final bool? confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (final BuildContext sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Delete Quote',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '"${quote.text.length > 80 ? '${quote.text.substring(0, 80)}…' : quote.text}"',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'This quote will be permanently removed from your local collection.',
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                      onPressed: () => Navigator.of(sheetContext).pop(true),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      await context.read<QuoteCatalogProvider>().deleteQuote(quote.id);
     }
   }
 
@@ -112,7 +201,13 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _FilterBar(provider: provider),
-              Expanded(child: _QuoteList(provider: provider)),
+              Expanded(
+                child: _QuoteList(
+                  provider: provider,
+                  onEdit: _navigateToEdit,
+                  onDelete: _showDeleteConfirmation,
+                ),
+              ),
             ],
           );
         },
@@ -204,8 +299,14 @@ class _FilterBar extends StatelessWidget {
 
 class _QuoteList extends StatelessWidget {
   final QuoteCatalogProvider provider;
+  final Future<void> Function(Quote quote) onEdit;
+  final Future<void> Function(Quote quote) onDelete;
 
-  const _QuoteList({required this.provider});
+  const _QuoteList({
+    required this.provider,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -254,7 +355,11 @@ class _QuoteList extends StatelessWidget {
     return ListView.builder(
       itemCount: quotes.length,
       itemBuilder: (final BuildContext context, final int index) {
-        return _QuoteListTile(quote: quotes[index]);
+        return _QuoteListTile(
+          quote: quotes[index],
+          onEdit: onEdit,
+          onDelete: onDelete,
+        );
       },
     );
   }
@@ -266,8 +371,14 @@ class _QuoteList extends StatelessWidget {
 
 class _QuoteListTile extends StatelessWidget {
   final Quote quote;
+  final Future<void> Function(Quote quote) onEdit;
+  final Future<void> Function(Quote quote) onDelete;
 
-  const _QuoteListTile({required this.quote});
+  const _QuoteListTile({
+    required this.quote,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -291,12 +402,12 @@ class _QuoteListTile extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Edit quote',
-            onPressed: () {},
+            onPressed: () => onEdit(quote),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Delete quote',
-            onPressed: () {},
+            onPressed: () => onDelete(quote),
           ),
         ],
       ),

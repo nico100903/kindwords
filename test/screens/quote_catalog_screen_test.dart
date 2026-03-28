@@ -1062,8 +1062,8 @@ void main() {
             ),
             routes: {
               '/quote-form': (context) => _MockEditQuoteFormScreen(
-                quote: existingQuote,
-              ),
+                    quote: existingQuote,
+                  ),
             },
           ),
         );
@@ -1083,7 +1083,8 @@ void main() {
         expect(
           find.text('Edit Quote'),
           findsOneWidget,
-          reason: 'Tapping edit icon must navigate to QuoteFormScreen in edit mode '
+          reason:
+              'Tapping edit icon must navigate to QuoteFormScreen in edit mode '
               'which shows "Edit Quote" title',
         );
       },
@@ -1118,21 +1119,21 @@ void main() {
             ),
             routes: {
               '/quote-form': (context) => _MockEditQuoteFormScreenWithUpdate(
-                quote: originalQuote,
-                onUpdate: () async {
-                  // Simulate updating the quote
-                  final updatedQuote = Quote(
-                    id: originalQuote.id,
-                    text: 'Updated quote text after edit!',
-                    author: 'Updated Author',
-                    tags: const ['wisdom'],
-                    source: originalQuote.source,
-                    createdAt: originalQuote.createdAt,
-                    updatedAt: DateTime.now(),
-                  );
-                  await provider.updateQuote(updatedQuote);
-                },
-              ),
+                    quote: originalQuote,
+                    onUpdate: () async {
+                      // Simulate updating the quote
+                      final updatedQuote = Quote(
+                        id: originalQuote.id,
+                        text: 'Updated quote text after edit!',
+                        author: 'Updated Author',
+                        tags: const ['wisdom'],
+                        source: originalQuote.source,
+                        createdAt: originalQuote.createdAt,
+                        updatedAt: DateTime.now(),
+                      );
+                      await provider.updateQuote(updatedQuote);
+                    },
+                  ),
             },
           ),
         );
@@ -1162,7 +1163,8 @@ void main() {
         expect(
           find.textContaining('Updated quote text'),
           findsOneWidget,
-          reason: 'After returning from QuoteFormScreen with a successful update, '
+          reason:
+              'After returning from QuoteFormScreen with a successful update, '
               'the catalog must refresh and show the updated quote text',
         );
 
@@ -1237,13 +1239,15 @@ void main() {
         expect(
           find.textContaining('Delete Quote'),
           findsOneWidget,
-          reason: 'Tapping delete icon must show a bottom sheet with "Delete Quote" title',
+          reason:
+              'Tapping delete icon must show a bottom sheet with "Delete Quote" title',
         );
 
         // Tap confirm delete button
         final confirmDelete = find.widgetWithText(TextButton, 'Delete');
         expect(confirmDelete, findsWidgets,
-            reason: 'Delete confirmation bottom sheet must have a Delete button');
+            reason:
+                'Delete confirmation bottom sheet must have a Delete button');
 
         await tester.tap(confirmDelete.last);
         await tester.pumpAndSettle();

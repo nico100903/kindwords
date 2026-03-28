@@ -1011,8 +1011,8 @@ void main() {
 
           // Verify updatedAt is within the test execution window
           expect(
-            updatedQuote.updatedAt!.isAfter(
-                beforeUpdate.subtract(const Duration(seconds: 1))),
+            updatedQuote.updatedAt!
+                .isAfter(beforeUpdate.subtract(const Duration(seconds: 1))),
             isTrue,
             reason: 'updatedAt must be set to the current edit time',
           );
@@ -1179,7 +1179,8 @@ void main() {
         await _buildEditQuoteFormScreen(tester, quote: existingQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1208,7 +1209,8 @@ void main() {
         await _buildEditQuoteFormScreen(tester, quote: existingQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1237,7 +1239,8 @@ void main() {
         await _buildEditQuoteFormScreen(tester, quote: existingQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1273,7 +1276,8 @@ void main() {
             await _buildEditQuoteFormScreen(tester, quote: existingQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1315,7 +1319,8 @@ void main() {
             await _buildEditQuoteFormScreen(tester, quote: existingQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1362,8 +1367,7 @@ void main() {
 
         // Modify the text
         final textFields = find.byType(TextFormField);
-        await tester.enterText(
-            textFields.first, 'Modified seeded quote text.');
+        await tester.enterText(textFields.first, 'Modified seeded quote text.');
         await tester.pumpAndSettle();
 
         // Tap Update
@@ -1408,7 +1412,8 @@ void main() {
             await _buildEditQuoteFormScreen(tester, quote: seededQuote);
 
         // Tap delete button
-        final deleteButton = find.widgetWithText(TextButton, 'Delete this quote');
+        final deleteButton =
+            find.widgetWithText(TextButton, 'Delete this quote');
         await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
@@ -1424,7 +1429,8 @@ void main() {
         expect(
           repo.deletedIds,
           contains('q002'),
-          reason: 'Seeded quotes must be deletable — deleteQuote must be called',
+          reason:
+              'Seeded quotes must be deletable — deleteQuote must be called',
         );
       },
     );
@@ -1439,7 +1445,8 @@ void main() {
 /// existing quote passed as a parameter.
 ///
 /// Returns both the full-CRUD repository and provider for assertions.
-Future<(_FullCrudQuoteRepository, QuoteCatalogProvider)> _buildEditQuoteFormScreen(
+Future<(_FullCrudQuoteRepository, QuoteCatalogProvider)>
+    _buildEditQuoteFormScreen(
   WidgetTester tester, {
   required Quote quote,
 }) async {

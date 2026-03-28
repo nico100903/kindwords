@@ -67,6 +67,9 @@ First public release. All three core user journeys ship fully offline.
 - Quote create flow: new `QuoteFormScreen` allows users to write their own quotes with text (≥10 chars), optional author, and up to 3 predefined tags; quotes are saved locally with source `userCreated` and a generated timestamp; the Quote Catalog exposes create entry points via an AppBar `+` icon and a `"New Quote"` floating action button; after a successful save the catalog reloads automatically to include the new quote.
 - Quote edit and delete flows: any quote in the local collection (seeded or user-created) can now be edited or deleted; editing a quote pre-populates all fields and preserves the original id, creation timestamp, and source; deleting from the form requires an AlertDialog confirmation; deleting from the catalog row requires a bottom-sheet confirmation; after either mutation the catalog automatically refreshes.
 
+### Changed
+- Favorites screen now exposes edit and delete actions for each saved quote — tapping the edit icon opens the quote form in edit mode, and returning after a save or delete automatically refreshes the favorites list so stale entries are never shown.
+
 ---
 
 <!-- Roadmap items tracked in README.md §Roadmap -->

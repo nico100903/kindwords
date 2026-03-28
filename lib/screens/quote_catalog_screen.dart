@@ -50,6 +50,16 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
   /// inject a mock via [MaterialApp.routes]), pushNamed is used so the
   /// registered builder is resolved.  When it is not registered, a direct
   /// [MaterialPageRoute] push is used instead.
+  ///
+  /// **Provider note:** [ChangeNotifierProvider.value] is used here to pass
+  /// the already-live [QuoteCatalogProvider] instance — obtained from the
+  /// ancestor widget tree via [context.read] — into the pushed route's
+  /// subtree.  This is the correct use of the `.value` constructor: we are
+  /// *re-sharing* an existing, Provider-owned instance, not creating a fresh
+  /// one.  Provider continues to manage the lifecycle; the `.value` variant
+  /// does not call [ChangeNotifier.dispose] when the route is popped, which
+  /// is exactly what we want because the ancestor [ChangeNotifierProvider]
+  /// still owns the notifier and is responsible for disposal.
   Future<void> _navigateToCreate() async {
     dynamic result;
 
@@ -82,6 +92,11 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
   ///
   /// Uses the same named-route vs direct-push strategy as [_navigateToCreate].
   /// After returning, reloads the catalog if the result is true (update/delete).
+  ///
+  /// **Provider note:** Same [ChangeNotifierProvider.value] rationale as
+  /// [_navigateToCreate] — the existing ancestor-owned provider instance is
+  /// re-shared into the pushed route; lifecycle ownership stays with the
+  /// ancestor [ChangeNotifierProvider].
   Future<void> _navigateToEdit(final Quote quote) async {
     dynamic result;
 
@@ -110,8 +125,23 @@ class _QuoteCatalogScreenState extends State<QuoteCatalogScreen> {
     }
   }
 
-  /// Shows a bottom sheet confirmation dialog and deletes the quote
-  /// if the user confirms.
+  /// Shows a bottom sheet confirmation and deletes the quote if the user
+  /// confirms.
+  ///
+  /// **Deliberate UX difference from [QuoteFormScreen._onDelete]:**
+  /// The catalog-row delete uses [showModalBottomSheet] — a contextual,
+  /// action-sheet style pattern appropriate for a list row action where the
+  /// user has not yet entered an editing context.
+  ///
+  /// The form's delete uses [AlertDialog] — a full-modal, focus-stealing
+  /// pattern that is appropriate when the user is already committed to an
+  /// edit session and is taking a final, irreversible step from within that
+  /// deeper context.  [AlertDialog] also matches the "more serious action"
+  /// guidance in the UI spec (§ Delete confirmation).
+  ///
+  /// The distinction is intentional and the widget test contract for catalog
+  /// delete (`test/screens/quote_catalog_screen_test.dart` — "after confirming
+  /// delete from catalog") expects the bottom-sheet variant specifically.
   Future<void> _showDeleteConfirmation(final Quote quote) async {
     final bool? confirmed = await showModalBottomSheet<bool>(
       context: context,

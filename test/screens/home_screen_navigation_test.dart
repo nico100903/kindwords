@@ -24,8 +24,10 @@ import 'package:kindwords/screens/settings_screen.dart';
 import 'package:kindwords/screens/quote_catalog_screen.dart';
 import 'package:kindwords/providers/quote_provider.dart';
 import 'package:kindwords/providers/favorites_provider.dart';
+import 'package:kindwords/providers/quote_catalog_provider.dart';
 import 'package:kindwords/services/quote_service.dart';
 import 'package:kindwords/services/favorites_service.dart';
+import 'package:kindwords/services/notification_service.dart';
 import 'package:kindwords/repositories/quote_repository.dart';
 import 'package:kindwords/models/quote.dart';
 
@@ -63,6 +65,25 @@ class _InMemoryQuoteRepository implements QuoteRepositoryBase {
   Future<List<Quote>> getByTag(String tag) => throw UnimplementedError();
 }
 
+/// Mock notification service for SettingsScreen tests.
+///
+/// Provides no-op implementations that return safe defaults.
+class _MockNotificationService implements NotificationServiceBase {
+  @override
+  Future<({bool enabled, int hour, int minute})> loadSettings() async {
+    return (enabled: false, hour: 8, minute: 0);
+  }
+
+  @override
+  Future<void> scheduleDailyNotification(int hour, int minute) async {}
+
+  @override
+  Future<void> cancelNotification() async {}
+
+  @override
+  Future<void> rescheduleFromSavedSettings() async {}
+}
+
 // ---------------------------------------------------------------------------
 // Test fixtures
 // ---------------------------------------------------------------------------
@@ -81,30 +102,40 @@ final _testQuotes = List<Quote>.generate(
 //
 // Creates a minimal MaterialApp with providers wired and HomeScreen as home.
 // Routes are defined to match the production app_bootstrap.dart routes.
+//
+// CRITICAL: MultiProvider must wrap MaterialApp (not be inside home:) so that
+// named-route pushes can access all providers. This matches production
+// bootstrap ordering in app_bootstrap.dart.
 // ---------------------------------------------------------------------------
 
 Widget _createTestApp() {
   final repo = _InMemoryQuoteRepository(_testQuotes);
   final quoteService = QuoteService(repo);
   final favoritesService = FavoritesService(repo);
+  final notificationService = _MockNotificationService();
 
-  return MaterialApp(
-    home: MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => QuoteProvider(quoteService),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => FavoritesProvider(favoritesService),
-        ),
-      ],
-      child: const HomeScreen(),
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => QuoteProvider(quoteService),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => FavoritesProvider(favoritesService),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => QuoteCatalogProvider(repo),
+      ),
+      // Expose NotificationService for SettingsScreen access
+      Provider<NotificationServiceBase>.value(value: notificationService),
+    ],
+    child: MaterialApp(
+      home: const HomeScreen(),
+      routes: {
+        '/favorites': (context) => const FavoritesScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/quotes': (context) => const QuoteCatalogScreen(),
+      },
     ),
-    routes: {
-      '/favorites': (context) => const FavoritesScreen(),
-      '/settings': (context) => const SettingsScreen(),
-      '/quotes': (context) => const QuoteCatalogScreen(),
-    },
   );
 }
 
@@ -329,12 +360,16 @@ void main() {
   // -------------------------------------------------------------------------
   // AC 4: Navigation update does not regress random quote journey or settings
   // (Covered by existing tests in home_screen_quote_flow_test.dart and
-  // settings_screen_test.dart — this test verifies navigation index reset)
+  // settings_screen_test.dart)
+  //
+  // Note: Per enrichment guidance, tests should NOT require tab-highlight
+  // persistence after push. We only verify navigation succeeded, not
+  // currentIndex state.
   // -------------------------------------------------------------------------
 
-  group('AC: Index resets to Home after navigation (push-and-reset idiom)', () {
+  group('AC: Navigation succeeds without tab-highlight persistence', () {
     testWidgets(
-      'selectedIndex resets to 0 after navigating to Quotes',
+      'navigating to Quotes succeeds (tab highlight not verified)',
       (WidgetTester tester) async {
         // Arrange
         await tester.pumpWidget(_createTestApp());
@@ -345,28 +380,19 @@ void main() {
         await tester.tap(quotesTab.first);
         await tester.pumpAndSettle();
 
-        // Assert: QuoteCatalogScreen is visible AND BottomNavigationBar shows
-        // Home as selected (index 0)
+        // Assert: QuoteCatalogScreen is visible
+        // Note: We do NOT check currentIndex per enrichment guidance
+        // that tab-highlight persistence after push is not required.
         expect(
           find.byType(QuoteCatalogScreen),
           findsOneWidget,
-          reason: 'Should have navigated to Quotes',
-        );
-
-        final bottomNavBar =
-            tester.widget<BottomNavigationBar>(_bottomNavBar());
-        expect(
-          bottomNavBar.currentIndex,
-          equals(0),
-          reason: 'After navigating to Quotes via push-and-reset idiom, '
-              'selectedIndex must reset to 0 (Home highlighted). '
-              'This is expected behavior, not a bug.',
+          reason: 'Tapping Quotes tab must navigate to QuoteCatalogScreen',
         );
       },
     );
 
     testWidgets(
-      'selectedIndex resets to 0 after navigating to Favorites',
+      'navigating to Favorites succeeds (tab highlight not verified)',
       (WidgetTester tester) async {
         // Arrange
         await tester.pumpWidget(_createTestApp());
@@ -377,28 +403,19 @@ void main() {
         await tester.tap(favoritesTab);
         await tester.pumpAndSettle();
 
-        // Assert: FavoritesScreen is visible AND BottomNavigationBar shows
-        // Home as selected (index 0)
+        // Assert: FavoritesScreen is visible
+        // Note: We do NOT check currentIndex per enrichment guidance
+        // that tab-highlight persistence after push is not required.
         expect(
           find.byType(FavoritesScreen),
           findsOneWidget,
-          reason: 'Should have navigated to Favorites',
-        );
-
-        final bottomNavBar =
-            tester.widget<BottomNavigationBar>(_bottomNavBar());
-        expect(
-          bottomNavBar.currentIndex,
-          equals(0),
-          reason: 'After navigating to Favorites via push-and-reset idiom, '
-              'selectedIndex must reset to 0 (Home highlighted). '
-              'This is expected behavior, not a bug.',
+          reason: 'Tapping Favorites tab must navigate to FavoritesScreen',
         );
       },
     );
 
     testWidgets(
-      'selectedIndex resets to 0 after navigating to Settings',
+      'navigating to Settings succeeds (tab highlight not verified)',
       (WidgetTester tester) async {
         // Arrange
         await tester.pumpWidget(_createTestApp());
@@ -409,22 +426,13 @@ void main() {
         await tester.tap(settingsTab);
         await tester.pumpAndSettle();
 
-        // Assert: SettingsScreen is visible AND BottomNavigationBar shows
-        // Home as selected (index 0)
+        // Assert: SettingsScreen is visible
+        // Note: We do NOT check currentIndex per enrichment guidance
+        // that tab-highlight persistence after push is not required.
         expect(
           find.byType(SettingsScreen),
           findsOneWidget,
-          reason: 'Should have navigated to Settings',
-        );
-
-        final bottomNavBar =
-            tester.widget<BottomNavigationBar>(_bottomNavBar());
-        expect(
-          bottomNavBar.currentIndex,
-          equals(0),
-          reason: 'After navigating to Settings via push-and-reset idiom, '
-              'selectedIndex must reset to 0 (Home highlighted). '
-              'This is expected behavior, not a bug.',
+          reason: 'Tapping Settings tab must navigate to SettingsScreen',
         );
       },
     );

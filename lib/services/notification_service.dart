@@ -1,9 +1,27 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:kindwords/services/quote_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
+
+/// Set to `true` to enable verbose notification scheduling logs.
+///
+/// Logs appear in the Flutter debug console and Android Logcat (tag "KW-Notif").
+/// Flip to `false` (or remove the guarded calls) when the scheduling pipeline
+/// is confirmed working.
+// ignore: do_not_use_environment
+const bool _kDebugNotifications = bool.fromEnvironment(
+  'KINDWORDS_DEBUG_NOTIFICATIONS',
+  defaultValue: false,
+);
+
+void _debugLog(String message) {
+  if (_kDebugNotifications) {
+    debugPrint('[KW-Notif] $message');
+  }
+}
 
 /// Abstract interface for notification services.
 ///
@@ -99,6 +117,12 @@ class NotificationService implements NotificationServiceBase {
     final quote = await _quoteService.getRandomQuote();
     final scheduledTime = _nextInstanceOf(hour, minute);
 
+    _debugLog(
+      'scheduleDailyNotification called — '
+      'id=$_notificationId, target=$hour:${minute.toString().padLeft(2, '0')}, '
+      'fires at $scheduledTime (tz=${tz.local.name})',
+    );
+
     const androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
@@ -123,6 +147,8 @@ class NotificationService implements NotificationServiceBase {
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
+
+    _debugLog('zonedSchedule completed — alarm registered with AlarmManager');
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefEnabled, true);
@@ -161,6 +187,11 @@ class NotificationService implements NotificationServiceBase {
     final scheduledTime =
         tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
 
+    _debugLog(
+      'scheduleTestInSeconds called — '
+      'id=9998, delay=${seconds}s, fires at $scheduledTime (tz=${tz.local.name})',
+    );
+
     const androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
@@ -179,6 +210,8 @@ class NotificationService implements NotificationServiceBase {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+
+    _debugLog('scheduleTestInSeconds zonedSchedule completed');
   }
 
   /// Fires an immediate notification to verify the channel and permissions work.

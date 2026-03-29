@@ -12,6 +12,7 @@ abstract class NotificationServiceBase {
   Future<({bool enabled, int hour, int minute})> loadSettings();
   Future<void> scheduleDailyNotification(int hour, int minute);
   Future<void> cancelNotification();
+  Future<void> sendTestNotification();
 
   /// Re-schedules notification from saved settings. Called by boot receiver.
   Future<void> rescheduleFromSavedSettings();
@@ -134,6 +135,28 @@ class NotificationService implements NotificationServiceBase {
       enabled: prefs.getBool(_prefEnabled) ?? false,
       hour: prefs.getInt(_prefHour) ?? 8,
       minute: prefs.getInt(_prefMinute) ?? 0,
+    );
+  }
+
+  /// Fires an immediate notification to verify the channel and permissions work.
+  ///
+  /// Useful for debugging on devices with aggressive battery management (e.g.
+  /// Huawei/Honor MagicOS) where scheduled exact alarms may be suppressed.
+  @override
+  Future<void> sendTestNotification() async {
+    final quote = await _quoteService.getRandomQuote();
+    const androidDetails = AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDesc,
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    await _plugin.show(
+      9999,
+      'KindWords Test 💛',
+      quote.text,
+      const NotificationDetails(android: androidDetails),
     );
   }
 

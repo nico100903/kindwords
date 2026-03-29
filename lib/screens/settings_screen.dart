@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../services/notification_service.dart';
+
+const _batteryChannel = MethodChannel('com.example.kindwords/battery');
 
 /// Settings screen for notification configuration.
 ///
@@ -18,11 +21,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _notificationHour = 8;
   int _notificationMinute = 0;
   bool _isLoading = true;
+  bool _isBatteryOptimized = false; // true = NOT exempted (bad)
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _checkBatteryOptimization();
+  }
+
+  Future<void> _checkBatteryOptimization() async {
+    try {
+      final bool isIgnoring = await _batteryChannel
+          .invokeMethod<bool>('isIgnoringBatteryOptimizations') ?? false;
+      if (mounted) {
+        setState(() {
+          _isBatteryOptimized = !isIgnoring; // optimized = NOT exempted
+        });
+      }
+    } catch (_) {
+      // Non-Android platform or channel unavailable — ignore
+    }
+  }
+
+  Future<void> _requestBatteryExemption() async {
+    try {
+      await _batteryChannel.invokeMethod('requestIgnoreBatteryOptimizations');
+      // Re-check after returning from system settings
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await _checkBatteryOptimization();
+    } catch (_) {}
+  }
+
+  Future<void> _sendTestNotification() async {
+    final service = context.read<NotificationServiceBase>();
+    await service.sendTestNotification();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Test notification sent — check your notification shade.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -122,6 +163,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
+                // Battery optimization warning banner
+                if (_isBatteryOptimized)
+                  MaterialBanner(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                    content: const Text(
+                      'Battery optimization is ON for this app. '
+                      'Scheduled notifications may be delayed or blocked — '
+                      'especially on Honor / Huawei devices.',
+                    ),
+                    leading: const Icon(
+                      Icons.battery_alert,
+                      color: Colors.deepOrange,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: _requestBatteryExemption,
+                        child: const Text('FIX NOW'),
+                      ),
+                    ],
+                  ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Text(
@@ -162,6 +223,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                   ),
                 ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: OutlinedButton.icon(
+                    onPressed: _sendTestNotification,
+                    icon: const Icon(Icons.notifications_active_outlined),
+                    label: const Text('Send Test Notification'),
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
     );

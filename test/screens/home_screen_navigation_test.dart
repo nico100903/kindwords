@@ -80,6 +80,9 @@ class _MockNotificationService implements NotificationServiceBase {
 
   @override
   Future<void> rescheduleFromSavedSettings() async {}
+
+  @override
+  Future<void> sendTestNotification() async {}
 }
 
 // ---------------------------------------------------------------------------

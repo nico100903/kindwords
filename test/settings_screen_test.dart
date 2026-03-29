@@ -58,7 +58,7 @@ class MockNotificationService implements NotificationServiceBase {
   Future<void> sendTestNotification() async {}
 
   @override
-  Future<void> scheduleTestIn15Seconds() async {}
+  Future<void> scheduleTestInSeconds(int seconds) async {}
 
   void reset() {
     loadSettingsCalled = false;

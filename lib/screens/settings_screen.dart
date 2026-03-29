@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../services/notification_service.dart';
 
 const _batteryChannel = MethodChannel('com.example.kindwords/battery');
@@ -22,12 +23,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _notificationMinute = 0;
   bool _isLoading = true;
   bool _isBatteryOptimized = false; // true = NOT exempted (bad)
+  int _scheduleTestDelaySeconds = 15;
+  int? _scheduledTestRemainingSeconds;
+  Timer? _scheduledTestCountdownTimer;
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
     _checkBatteryOptimization();
+  }
+
+  @override
+  void dispose() {
+    _scheduledTestCountdownTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkBatteryOptimization() async {
@@ -66,17 +76,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _scheduleTestIn15Seconds() async {
+  void _startScheduledTestCountdown(int seconds) {
+    _scheduledTestCountdownTimer?.cancel();
+    setState(() {
+      _scheduledTestRemainingSeconds = seconds;
+    });
+
+    _scheduledTestCountdownTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
+        final nextValue = (_scheduledTestRemainingSeconds ?? 0) - 1;
+        if (nextValue <= 0) {
+          timer.cancel();
+          setState(() {
+            _scheduledTestRemainingSeconds = null;
+          });
+          return;
+        }
+
+        setState(() {
+          _scheduledTestRemainingSeconds = nextValue;
+        });
+      },
+    );
+  }
+
+  Future<void> _scheduleTestInSeconds() async {
     final service = context.read<NotificationServiceBase>();
-    await service.scheduleTestIn15Seconds();
+    await service.scheduleTestInSeconds(_scheduleTestDelaySeconds);
+    if (mounted) {
+      _startScheduledTestCountdown(_scheduleTestDelaySeconds);
+    }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Scheduled test: notification will fire in 15 seconds. '
-            'Lock the screen now and wait.',
+            'Scheduled test: notification will fire in '
+            '$_scheduleTestDelaySeconds seconds. Lock the screen now and wait.',
           ),
-          duration: Duration(seconds: 5),
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -251,10 +294,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Scheduled test delay: $_scheduleTestDelaySeconds seconds',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Slider(
+                        value: _scheduleTestDelaySeconds.toDouble(),
+                        min: 5,
+                        max: 60,
+                        divisions: 11,
+                        label: '$_scheduleTestDelaySeconds s',
+                        onChanged: (value) {
+                          setState(() {
+                            _scheduleTestDelaySeconds = value.round();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: OutlinedButton.icon(
-                    onPressed: _scheduleTestIn15Seconds,
+                    onPressed: _scheduleTestInSeconds,
                     icon: const Icon(Icons.alarm),
-                    label: const Text('Schedule Test (fires in 15s)'),
+                    label: Text(
+                      _scheduledTestRemainingSeconds == null
+                          ? 'Schedule Test (fires in $_scheduleTestDelaySeconds s)'
+                          : 'Scheduled — $_scheduledTestRemainingSeconds s remaining',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

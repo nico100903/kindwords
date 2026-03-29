@@ -13,7 +13,7 @@ abstract class NotificationServiceBase {
   Future<void> scheduleDailyNotification(int hour, int minute);
   Future<void> cancelNotification();
   Future<void> sendTestNotification();
-  Future<void> scheduleTestIn15Seconds();
+  Future<void> scheduleTestInSeconds(int seconds);
 
   /// Re-schedules notification from saved settings. Called by boot receiver.
   Future<void> rescheduleFromSavedSettings();
@@ -151,15 +151,15 @@ class NotificationService implements NotificationServiceBase {
     );
   }
 
-  /// Schedules a notification 15 seconds from now using the exact same
+  /// Schedules a notification [seconds] from now using the exact same
   /// zonedSchedule + alarmClock path as the daily notification.
   ///
   /// Use this to verify scheduled delivery works independently of timing.
   @override
-  Future<void> scheduleTestIn15Seconds() async {
+  Future<void> scheduleTestInSeconds(int seconds) async {
     final quote = await _quoteService.getRandomQuote();
     final scheduledTime =
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 15));
+        tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds));
 
     const androidDetails = AndroidNotificationDetails(
       _channelId,

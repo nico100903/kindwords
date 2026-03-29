@@ -58,7 +58,7 @@ First public release. All three core user journeys ship fully offline.
 
 ---
 
-## [Unreleased]
+## [1.1.0] — 2026-03-29
 
 ### Added
 - Quotes is now a top-level bottom navigation destination (Home → Quotes → Favorites → Settings), giving direct one-tap access to the full quote catalog from anywhere in the app.

@@ -11,6 +11,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 - Scheduled notifications now fire correctly on all tested Android devices — the missing `ScheduledNotificationReceiver` broadcast receiver has been registered in the Android manifest.
+- Scheduled notifications no longer crash the release APK when the alarm fires — added ProGuard/R8 keep rules for Gson `TypeToken` that were missing, causing `RuntimeException: Missing type parameter.` in `ScheduledNotificationReceiver` at runtime.
 
 ---
 

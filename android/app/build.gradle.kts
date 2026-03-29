@@ -42,6 +42,14 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // Apply Gson / flutter_local_notifications ProGuard keep rules.
+            // Without these, R8 strips generic Signature attributes from
+            // TypeToken anonymous classes, causing "Missing type parameter."
+            // in ScheduledNotificationReceiver at runtime.
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

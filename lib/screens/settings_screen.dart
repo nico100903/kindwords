@@ -66,6 +66,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _scheduleTestIn15Seconds() async {
+    final service = context.read<NotificationServiceBase>();
+    await service.scheduleTestIn15Seconds();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Scheduled test: notification will fire in 15 seconds. '
+            'Lock the screen now and wait.',
+          ),
+          duration: Duration(seconds: 5),
+        ),
+      );
+    }
+  }
+
   Future<void> _loadSettings() async {
     final service = context.read<NotificationServiceBase>();
     final settings = await service.loadSettings();
@@ -230,6 +246,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _sendTestNotification,
                     icon: const Icon(Icons.notifications_active_outlined),
                     label: const Text('Send Test Notification'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: OutlinedButton.icon(
+                    onPressed: _scheduleTestIn15Seconds,
+                    icon: const Icon(Icons.alarm),
+                    label: const Text('Schedule Test (fires in 15s)'),
                   ),
                 ),
                 const SizedBox(height: 16),

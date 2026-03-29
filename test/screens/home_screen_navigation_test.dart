@@ -83,6 +83,9 @@ class _MockNotificationService implements NotificationServiceBase {
 
   @override
   Future<void> sendTestNotification() async {}
+
+  @override
+  Future<void> scheduleTestIn15Seconds() async {}
 }
 
 // ---------------------------------------------------------------------------

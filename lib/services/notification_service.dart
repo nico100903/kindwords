@@ -177,10 +177,12 @@ class NotificationService implements NotificationServiceBase {
     );
   }
 
-  /// Schedules a notification [seconds] from now using the exact same
-  /// zonedSchedule + alarmClock path as the daily notification.
+  /// Schedules a notification [seconds] from now for in-app debug testing.
   ///
-  /// Use this to verify scheduled delivery works independently of timing.
+  /// Uses [AndroidScheduleMode.exactAllowWhileIdle] (not alarmClock) to avoid
+  /// the system-level alarm UX (clock icon, task-switch behaviour) that
+  /// alarmClock mode triggers. exactAllowWhileIdle still fires while the device
+  /// is idle and is sufficient to verify scheduled delivery in the emulator.
   @override
   Future<void> scheduleTestInSeconds(int seconds) async {
     final quote = await _quoteService.getRandomQuote();
@@ -206,7 +208,7 @@ class NotificationService implements NotificationServiceBase {
       quote.text,
       scheduledTime,
       const NotificationDetails(android: androidDetails),
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );

@@ -1,23 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
 import '../services/notification_service.dart';
-
-/// Compile-time flag — set via `--dart-define=KINDWORDS_DEBUG_NOTIFICATIONS=true`.
-///
-/// When true, the Settings screen renders an additional "Notification Debug"
-/// section with a "Send Test Notification" button and a configurable
-/// "Schedule Test" trigger (with a live countdown timer).
-///
-/// The production default is always false; the section is tree-shaken out of
-/// release builds.
-// ignore: do_not_use_environment
-const bool _kDebugNotifications = bool.fromEnvironment(
-  'KINDWORDS_DEBUG_NOTIFICATIONS',
-);
 
 const _batteryChannel = MethodChannel('com.example.kindwords/battery');
 
@@ -39,22 +23,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = true;
   bool _isBatteryOptimized = false; // true = NOT exempted (bad)
 
-  // Debug-only state — unused (and tree-shaken) when _kDebugNotifications is false.
-  int _scheduleTestDelaySeconds = 15;
-  int? _scheduledTestRemainingSeconds;
-  Timer? _scheduledTestCountdownTimer;
-
   @override
   void initState() {
     super.initState();
     _loadSettings();
     _checkBatteryOptimization();
-  }
-
-  @override
-  void dispose() {
-    _scheduledTestCountdownTimer?.cancel();
-    super.dispose();
   }
 
   Future<void> _checkBatteryOptimization() async {
@@ -78,75 +51,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 500));
       await _checkBatteryOptimization();
     } catch (_) {}
-  }
-
-  // ---------------------------------------------------------------------------
-  // Debug helpers — only called when _kDebugNotifications is true.
-  // Tree-shaken in release / non-debug builds.
-  // ---------------------------------------------------------------------------
-
-  Future<void> _sendTestNotification() async {
-    final service = context.read<NotificationServiceBase>();
-    await service.sendTestNotification();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Test notification sent — check your notification shade.',
-          ),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
-  void _startScheduledTestCountdown(int seconds) {
-    _scheduledTestCountdownTimer?.cancel();
-    setState(() {
-      _scheduledTestRemainingSeconds = seconds;
-    });
-
-    _scheduledTestCountdownTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (!mounted) {
-          timer.cancel();
-          return;
-        }
-
-        final nextValue = (_scheduledTestRemainingSeconds ?? 0) - 1;
-        if (nextValue <= 0) {
-          timer.cancel();
-          setState(() {
-            _scheduledTestRemainingSeconds = null;
-          });
-          return;
-        }
-
-        setState(() {
-          _scheduledTestRemainingSeconds = nextValue;
-        });
-      },
-    );
-  }
-
-  Future<void> _scheduleTestInSeconds() async {
-    final service = context.read<NotificationServiceBase>();
-    await service.scheduleTestInSeconds(_scheduleTestDelaySeconds);
-    if (mounted) {
-      _startScheduledTestCountdown(_scheduleTestDelaySeconds);
-    }
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Scheduled test: notification will fire in '
-            '$_scheduleTestDelaySeconds seconds. Lock the screen now and wait.',
-          ),
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    }
   }
 
   Future<void> _loadSettings() async {
@@ -306,70 +210,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                   ),
                 ),
-
-                // -------------------------------------------------------
-                // Debug section — visible only when the app is launched with
-                // --dart-define=KINDWORDS_DEBUG_NOTIFICATIONS=true
-                // -------------------------------------------------------
-                if (_kDebugNotifications) ...[
-                  const Divider(height: 32),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: Text(
-                      'Notification Debug',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: OutlinedButton.icon(
-                      onPressed: _sendTestNotification,
-                      icon: const Icon(Icons.notifications_active_outlined),
-                      label: const Text('Send Test Notification'),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Scheduled test delay: $_scheduleTestDelaySeconds seconds',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Slider(
-                          value: _scheduleTestDelaySeconds.toDouble(),
-                          min: 5,
-                          max: 60,
-                          divisions: 11,
-                          label: '$_scheduleTestDelaySeconds s',
-                          onChanged: (value) {
-                            setState(() {
-                              _scheduleTestDelaySeconds = value.round();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: OutlinedButton.icon(
-                      onPressed: _scheduleTestInSeconds,
-                      icon: const Icon(Icons.alarm),
-                      label: Text(
-                        _scheduledTestRemainingSeconds == null
-                            ? 'Schedule Test (fires in $_scheduleTestDelaySeconds s)'
-                            : 'Scheduled — $_scheduledTestRemainingSeconds s remaining',
-                      ),
-                    ),
-                  ),
-                ],
-
                 const SizedBox(height: 16),
               ],
             ),

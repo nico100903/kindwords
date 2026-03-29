@@ -15,9 +15,6 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Removed
 - Temporary in-app test notification buttons and scheduled-test slider removed from the Settings screen; the screen now shows only production-relevant controls.
 
-### Added
-- Notification debug UI (test-send button, scheduled-test slider, countdown timer) restored behind a compile-time flag: launch with `--dart-define=KINDWORDS_DEBUG_NOTIFICATIONS=true` to reveal the section. Invisible and tree-shaken in normal/release builds.
-
 ---
 
 ## [1.0.0] — 2026-03-26

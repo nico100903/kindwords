@@ -12,6 +12,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - Scheduled notifications now fire correctly on all tested Android devices — the missing `ScheduledNotificationReceiver` broadcast receiver has been registered in the Android manifest.
 
+### Removed
+- Temporary in-app test notification buttons and scheduled-test slider removed from the Settings screen; the screen now shows only production-relevant controls.
+
 ---
 
 ## [1.0.0] — 2026-03-26

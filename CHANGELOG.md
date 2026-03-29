@@ -68,13 +68,6 @@ First public release. All three core user journeys ship fully offline.
 
 ---
 
-## [1.1.2] — 2026-03-29
-
-### Changed
-- Removed the temporary in-app notification debugging UI from Settings for the release build, keeping the real scheduled-notification fix intact while restoring a clean end-user experience.
-
----
-
 ## [1.1.1] — 2026-03-29
 
 ### Fixed

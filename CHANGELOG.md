@@ -65,6 +65,15 @@ First public release. All three core user journeys ship fully offline.
 
 ---
 
+## [1.1.1] — 2026-03-29
+
+### Fixed
+- Scheduled notifications now work correctly: the Android receivers required by `flutter_local_notifications` are registered in the app manifest, so AlarmManager-delivered broadcasts are no longer silently dropped.
+- Notification scheduling now includes stronger Android-side diagnostics and a temporary in-app scheduled test flow to verify delivery during debugging.
+- Notification scheduling and delivery on Android now use the correct local timezone, a high-importance channel, and improved user guidance around exact alarms and battery optimization.
+
+---
+
 ## [1.1.0] — 2026-03-29
 
 ### Added

@@ -105,7 +105,11 @@ class NotificationService implements NotificationServiceBase {
       quote.text,
       scheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      // alarmClock mode uses AlarmManager.setAlarmClock() — the strongest
+      // scheduling guarantee on Android. Cannot be batched or deferred by OEM
+      // battery management (including Honor/Huawei MagicOS). Shows a clock
+      // icon in the status bar while the alarm is pending.
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,

@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:kindwords/services/quote_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -43,6 +44,11 @@ class NotificationService implements NotificationServiceBase {
   /// Must be called in [main()] before [runApp()].
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
+
+    // Set tz.local to the device's actual IANA timezone so zonedSchedule fires
+    // at the correct local time (e.g. 08:00 Asia/Manila, not 08:00 UTC).
+    final String localTimezoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(localTimezoneName));
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');

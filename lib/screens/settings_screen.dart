@@ -47,14 +47,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _notificationHour,
         _notificationMinute,
       );
+
+      // Verify the notification was actually scheduled — scheduling silently
+      // returns early if SCHEDULE_EXACT_ALARM permission is not yet granted
+      // (API 31–32). Read prefs back to detect this case.
+      final result = await notificationService.loadSettings();
+      if (mounted) {
+        setState(() {
+          _notificationsEnabled = result.enabled;
+        });
+        if (!result.enabled) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Permission required: go to Settings → Apps → KindWords → '
+                'Alarms & Reminders and allow exact alarms, then try again.',
+              ),
+              duration: Duration(seconds: 6),
+            ),
+          );
+        }
+      }
     } else {
       await notificationService.cancelNotification();
-    }
-
-    if (mounted) {
-      setState(() {
-        _notificationsEnabled = value;
-      });
+      if (mounted) {
+        setState(() {
+          _notificationsEnabled = false;
+        });
+      }
     }
   }
 

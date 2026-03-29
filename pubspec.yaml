@@ -20,6 +20,9 @@ dependencies:
   # Required by flutter_local_notifications for timezone-aware scheduling
   timezone: ^0.9.4
 
+  # Reads the device's local IANA timezone name so tz.local is set correctly
+  flutter_timezone: ^1.0.4
+
   # Favorites and settings persistence
   shared_preferences: ^2.3.2
 

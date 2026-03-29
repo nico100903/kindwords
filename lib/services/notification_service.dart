@@ -22,10 +22,13 @@ abstract class NotificationServiceBase {
 ///
 /// Android-specific notes:
 /// - Requires SCHEDULE_EXACT_ALARM (API 31–32) or USE_EXACT_ALARM (API 33+)
-/// - Notification channel: "kindwords_daily" (IMPORTANCE_DEFAULT)
+/// - Notification channel: "kindwords_daily_v2" (IMPORTANCE_HIGH)
 /// - Uses zonedSchedule with DateTimeComponents.time for daily repeat
+/// - Channel v2 replaces v1 ("kindwords_daily") which was created with
+///   IMPORTANCE_DEFAULT — Android locks channel importance after first creation
+///   so a new channel ID is required to get heads-up + sound on delivery.
 class NotificationService implements NotificationServiceBase {
-  static const String _channelId = 'kindwords_daily';
+  static const String _channelId = 'kindwords_daily_v2';
   static const String _channelName = 'Daily Motivation';
   static const String _channelDesc = 'Daily motivational quote notification';
   static const int _notificationId = 1001;
@@ -56,11 +59,16 @@ class NotificationService implements NotificationServiceBase {
     const initSettings = InitializationSettings(android: androidSettings);
 
     await _plugin.initialize(initSettings);
+
+    // Remove the old v1 channel (created with IMPORTANCE_DEFAULT — Android
+    // locks importance after first creation, so we migrate to v2 with HIGH).
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.deleteNotificationChannel('kindwords_daily');
+
     await _createNotificationChannel();
 
     // Request POST_NOTIFICATIONS permission once at init (Android 13+ / API 33+).
-    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.requestNotificationsPermission();
   }
 
@@ -94,8 +102,8 @@ class NotificationService implements NotificationServiceBase {
       _channelId,
       _channelName,
       channelDescription: _channelDesc,
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
+      importance: Importance.high,
+      priority: Priority.high,
     );
     const details = NotificationDetails(android: androidDetails);
 
@@ -196,7 +204,7 @@ class NotificationService implements NotificationServiceBase {
       _channelId,
       _channelName,
       description: _channelDesc,
-      importance: Importance.defaultImportance,
+      importance: Importance.high,
     );
 
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<

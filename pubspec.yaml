@@ -2,7 +2,7 @@ name: kindwords
 description: KindWords — Daily Motivation Generator. Random motivational quotes, daily notifications, and favorites. Fully offline Android app.
 publish_to: 'none'
 
-version: 1.1.1+3
+version: 1.1.3+5
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

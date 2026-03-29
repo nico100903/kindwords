@@ -66,6 +66,14 @@ First public release. All three core user journeys ship fully offline.
 
 ---
 
+## [1.1.3] — 2026-03-29
+
+### Fixed
+- Release APK notifications no longer crash the app when a scheduled notification fires. Added the required ProGuard/R8 keep rules so Gson `TypeToken` metadata used by `flutter_local_notifications` survives release shrinking.
+- Scheduled notifications remain working on Android with the previously added receiver registration, timezone handling, high-importance channel configuration, and reliable scheduling behavior.
+
+---
+
 ## [1.1.1] — 2026-03-29
 
 ### Fixed
